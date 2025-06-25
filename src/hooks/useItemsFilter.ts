@@ -42,7 +42,24 @@ export function useItemsFilter(items: Item[]) {
   }, [filteredItems, filters.sortBy, frozenOrder])
 
   const availableCategories = useMemo(() => {
-    return [...new Set(items.map(item => item.category))].sort()
+    const uniqueCategories = [...new Set(items.map(item => item.category))]
+    
+    // 指定された順序
+    const categoryOrder = [
+      '野菜',
+      '肉類', 
+      '乳製品',
+      '果物',
+      'パン・穀物',
+      '調味料',
+      'その他'
+    ]
+    
+    // 指定順序に従ってソート、存在しないカテゴリは末尾に追加
+    const sortedCategories = categoryOrder.filter(cat => uniqueCategories.includes(cat))
+    const remainingCategories = uniqueCategories.filter(cat => !categoryOrder.includes(cat)).sort()
+    
+    return [...sortedCategories, ...remainingCategories]
   }, [items])
 
   return {

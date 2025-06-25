@@ -36,7 +36,14 @@ export default function ItemsPage() {
     setFrozenOrder
   } = useItemsFilter(items)
 
-  const { toggleConsumption } = useItemOperations()
+  const { toggleConsumption } = useItemOperations({
+    items,
+    setItems,
+    frozenOrder,
+    setFrozenOrder,
+    filteredAndSortedItems,
+    sortBy: filters.sortBy
+  })
 
   useEffect(() => {
     if (user) {
@@ -81,7 +88,7 @@ export default function ItemsPage() {
   // 消費状態変更ハンドラー
   const handleToggleConsumption = async (itemId: string, currentStatus: boolean) => {
     await toggleConsumption(itemId, currentStatus)
-    fetchItems() // データを再取得して最新状態に同期
+    // fetchItems()は呼ばない - useItemOperations内でローカル状態更新済み
   }
 
   // ソート変更ハンドラー

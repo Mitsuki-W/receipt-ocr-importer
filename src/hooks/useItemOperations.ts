@@ -1,9 +1,7 @@
 import { supabase } from '@/lib/supabase/client'
 import { Item, SortOption } from '@/types/item'
-import { sortItems } from '@/utils/itemSort'
-import { filterItems } from '@/utils/itemFilter'
 
-interface ToggleConsumptionParams {
+interface UseItemOperationsParams {
   items: Item[]
   setItems: (items: Item[]) => void
   frozenOrder: Item[]
@@ -12,15 +10,17 @@ interface ToggleConsumptionParams {
   sortBy: SortOption
 }
 
-export function useItemOperations() {
+export function useItemOperations(params: UseItemOperationsParams) {
+  const { items, setItems, frozenOrder, setFrozenOrder, filteredAndSortedItems, sortBy } = params
+
   const toggleConsumption = async (
     itemId: string, 
-    currentStatus: boolean,
-    params: ToggleConsumptionParams
+    currentStatus: boolean
   ) => {
-    const { items, setItems, frozenOrder, setFrozenOrder, filteredAndSortedItems, sortBy } = params
-
     try {
+      // 消費状態変更前の現在の表示順序を固定順序として保存
+      setFrozenOrder(filteredAndSortedItems)
+      
       const { error } = await supabase
         .from('items')
         .update({ 
@@ -30,9 +30,6 @@ export function useItemOperations() {
         .eq('id', itemId)
 
       if (error) throw error
-      
-      // 現在のソート済みアイテムリストを固定順序として保存
-      setFrozenOrder(filteredAndSortedItems)
       
       // アイテムの状態をローカルで更新
       setItems(
