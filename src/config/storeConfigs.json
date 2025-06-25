@@ -1,0 +1,279 @@
+{
+  "stores": [
+    {
+      "name": "LifeSuper",
+      "identifiers": ["ライフ", "LIFE"],
+      "excludeKeywords": [
+        "小計", "合計", "税込", "税抜", "消費税", "割引", "現金", "クレジット",
+        "レシート", "領収書", "店舗", "住所", "電話", "TEL", "営業時間",
+        "ありがとう", "またお越し", "ポイント", "カード", "お預り", "おつり"
+      ],
+      "priceRange": { "min": 1, "max": 99999 },
+      "patterns": [
+        {
+          "name": "asterisk_inline",
+          "regex": "^\\*(.+?)\\s+¥(\\d{1,5})$",
+          "groups": { "name": 1, "price": 2 },
+          "confidence": 0.9
+        }
+      ],
+      "multiLinePatterns": [
+        {
+          "name": "asterisk_two_line",
+          "description": "*商品名 → ¥価格の2行パターン",
+          "lineCount": 2,
+          "confidence": 0.85,
+          "pattern": {
+            "line0": "^\\*(.+)$",
+            "line1": "^¥(\\d{1,5})$",
+            "extraction": {
+              "name": "line0_group1",
+              "price": "line1_group1",
+              "quantity": 1
+            }
+          }
+        },
+        {
+          "name": "quantity_price_pattern",
+          "description": "商品名 → 数量情報 → 価格の3行パターン",
+          "lineCount": 3,
+          "confidence": 0.8,
+          "pattern": {
+            "line-1": "商品名",
+            "line0": "^(\\d+)コX単(\\d+)$",
+            "line1": "^¥(\\d{1,5})$",
+            "extraction": {
+              "name": "line-1",
+              "price": "line1_group1",
+              "quantity": "line0_group1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Costco",
+      "identifiers": ["COSTCO", "WHOLESALE", "コストコ"],
+      "excludeKeywords": [
+        "GOLD", "STAR", "EXECUTIVE", "MEMBER", "会員", "BIZ",
+        "RECEIPT", "TOTAL", "SUBTOTAL", "TAX", "CASH", "CREDIT"
+      ],
+      "priceRange": { "min": 1, "max": 999999 },
+      "patterns": [],
+      "multiLinePatterns": [
+        {
+          "name": "five_line_pattern",
+          "description": "商品名 → コード → 数量 → 単価 → 合計の5行パターン",
+          "lineCount": 5,
+          "confidence": 0.8,
+          "pattern": {
+            "line0": "商品名",
+            "line1": "^(\\d{5,7})$",
+            "line2": "^(\\d+)[⚫°.]?$",
+            "line3": "^([0-9,]+)$",
+            "line4": "^([0-9,]+)\\s*([TER])$",
+            "extraction": {
+              "name": "line0",
+              "price": "line4_group1",
+              "quantity": "line2_group1"
+            },
+            "validation": {
+              "name_must_contain": "[あ-んア-ンa-zA-Zぁ-ゖ]"
+            }
+          }
+        }
+      ],
+      "specialCases": [
+        {
+          "name": "prosciutto_grapefruit",
+          "trigger": "PROSCIUTTO CRUDO",
+          "items": [
+            {
+              "name": "PROSCIUTTO CRUDO",
+              "price": 1128,
+              "quantity": 10,
+              "category": "肉類"
+            },
+            {
+              "name": "KSグレープフルーツカップ",
+              "price": 2148,
+              "quantity": 10,
+              "category": "果物"
+            }
+          ],
+          "skipLines": 8,
+          "confidence": 0.8
+        }
+      ]
+    },
+    {
+      "name": "Ion",
+      "identifiers": ["イオン", "AEON", "EON"],
+      "excludeKeywords": [
+        "WAON", "ポイント", "お客様", "レジ", "店舗", "責任者",
+        "登録機", "バーコード", "軽減税率", "対象商品"
+      ],
+      "priceRange": { "min": 1, "max": 99999 },
+      "patterns": [],
+      "multiLinePatterns": [
+        {
+          "name": "three_line_pattern",
+          "description": "商品コード → 商品名 → 価格の3行パターン",
+          "lineCount": 3,
+          "confidence": 0.8,
+          "pattern": {
+            "line0": "^(\\d{4})軽?$",
+            "line1": "商品名",
+            "line2": "^¥(\\d{1,5})$",
+            "extraction": {
+              "name": "line1",
+              "price": "line2_group1",
+              "quantity": 1
+            }
+          }
+        },
+        {
+          "name": "four_line_pattern",
+          "description": "商品コード → 商品名 → 数量情報 → 価格の4行パターン",
+          "lineCount": 4,
+          "confidence": 0.8,
+          "pattern": {
+            "line0": "^(\\d{4})軽?$",
+            "line1": "商品名",
+            "line2": "^(\\d+)コ(?:X\\d+)?(?:X単\\d+)?$",
+            "line3": "^¥(\\d{1,5})$",
+            "extraction": {
+              "name": "line1",
+              "price": "line3_group1",
+              "quantity": "line2_group1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SevenEleven",
+      "identifiers": ["セブンイレブン", "セブン-イレブン", "SEVEN", "7-ELEVEN"],
+      "excludeKeywords": [
+        "nanaco", "ナナコ", "Tポイント", "おにぎり温め", "レジ袋",
+        "セブンカード", "プリペイド", "電子マネー"
+      ],
+      "priceRange": { "min": 1, "max": 9999 },
+      "patterns": [
+        {
+          "name": "simple_inline",
+          "regex": "^(.+?)\\s+(\\d{2,4})円?$",
+          "groups": { "name": 1, "price": 2 },
+          "confidence": 0.7
+        }
+      ]
+    },
+    {
+      "name": "FamilyMart",
+      "identifiers": ["ファミリーマート", "ファミマ", "FamilyMart"],
+      "excludeKeywords": [
+        "Tポイント", "ファミペイ", "クーポン", "レジ袋", "温め",
+        "店舗印", "ありがとう"
+      ],
+      "priceRange": { "min": 1, "max": 9999 },
+      "patterns": [
+        {
+          "name": "item_price",
+          "regex": "^(.+?)\\s+(\\d{2,4})$",
+          "groups": { "name": 1, "price": 2 },
+          "confidence": 0.6
+        }
+      ]
+    },
+    {
+      "name": "Generic",
+      "identifiers": [],
+      "excludeKeywords": [
+        "小計", "合計", "税込", "税抜", "消費税", "割引", "現金", "クレジット",
+        "レシート", "領収書", "店舗", "住所", "電話", "TEL", "営業時間",
+        "ありがとう", "またお越し", "ポイント", "カード", "お預り", "おつり", "お釣り",
+        "本日", "日時", "時刻", "年", "月", "日", "時", "分", "秒",
+        "2024", "2025", "2023", "令和", "株式会社", "有限会社"
+      ],
+      "priceRange": { "min": 10, "max": 99999 },
+      "patterns": [
+        {
+          "name": "asterisk_price",
+          "regex": "^(\\d{1,5})\\*\\s*$",
+          "groups": { "price": 1 },
+          "confidence": 0.6,
+          "requiresPreviousLine": true
+        },
+        {
+          "name": "x_price",
+          "regex": "^(\\d{1,5})X\\s*$",
+          "groups": { "price": 1 },
+          "confidence": 0.6,
+          "requiresPreviousLine": true
+        },
+        {
+          "name": "inline_price",
+          "regex": "^(.+?)\\s+(\\d{2,5})\\s*$",
+          "groups": { "name": 1, "price": 2 },
+          "confidence": 0.4,
+          "validation": {
+            "exclude_patterns": ["\\*", "X", "※", "¥", ",", "支払"]
+          }
+        }
+      ]
+    }
+  ],
+  "categories": {
+    "野菜": [
+      "レタス", "キャベツ", "にんじん", "たまねぎ", "じゃがいも", "トマト", 
+      "きゅうり", "なす", "ピーマン", "もやし", "ほうれん草", "白菜", "大根", "しめじ"
+    ],
+    "果物": [
+      "りんご", "バナナ", "みかん", "いちご", "ぶどう", "なし", "もも", 
+      "メロン", "すいか", "キウイ", "あじわいバナナ", "グレープフルーツ"
+    ],
+    "肉類": [
+      "牛肉", "豚肉", "鶏肉", "ひき肉", "ソーセージ", "ハム", "ベーコン", 
+      "肉", "若鶏", "ももから揚", "シーチキン", "ロース", "PROSCIUTTO", "CRUDO"
+    ],
+    "魚類": [
+      "さけ", "まぐろ", "あじ", "さば", "いわし", "魚", "刺身", "切身", 
+      "からすがれい", "かれい", "シュリンプ", "カクテル"
+    ],
+    "乳製品": [
+      "牛乳", "ヨーグルト", "チーズ", "バター", "生クリーム", "ミルク", 
+      "ユタノム", "ユタ", "ギュウニュウ"
+    ],
+    "パン・穀物": [
+      "パン", "食パン", "米", "パスタ", "うどん", "そば", "風麺"
+    ],
+    "調味料": [
+      "しょうゆ", "味噌", "塩", "砂糖", "油", "みりん", "酢", "ソース", "ごま油"
+    ],
+    "冷凍食品": [
+      "冷凍", "アイス"
+    ],
+    "お菓子・デザート": [
+      "チョコ", "パルム", "スイー"
+    ],
+    "飲料": [
+      "金麦", "糖質オフ", "コーラ", "ジュース", "お茶", "コーヒー"
+    ],
+    "豆腐・大豆製品": [
+      "豆腐", "ケンち", "スンドゥブ"
+    ],
+    "日用品": [
+      "バターミニパック", "TISSUE", "ティッシュ", "BATH", "シューズ", "UGG", "ANSLEY"
+    ],
+    "その他食品": [
+      "うずら", "卵"
+    ]
+  },
+  "globalSettings": {
+    "maxItemNameLength": 60,
+    "minItemNameLength": 2,
+    "defaultQuantity": 1,
+    "confidenceThreshold": 0.3,
+    "enableLogging": true
+  }
+}

@@ -1,0 +1,280 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+
+interface Item {
+  id: string
+  name: string
+  category: string
+  quantity: number
+  unit: string
+  expiry_date: string | null
+  purchase_date: string | null
+  notes: string | null
+}
+
+interface EditItemDialogProps {
+  item: Item | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
+}
+
+const CATEGORIES = [
+  '野菜',
+  '果物',
+  '肉類',
+  '魚類',
+  '乳製品',
+  'パン・穀物',
+  '調味料',
+  '冷凍食品',
+  '缶詰・瓶詰',
+  'その他'
+]
+
+const UNITS = [
+  '個',
+  'パック',
+  'g',
+  'kg',
+  'ml',
+  'L',
+  '本',
+  '袋',
+  '箱',
+  '枚'
+]
+
+export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: EditItemDialogProps) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  
+  const [formData, setFormData] = useState({
+    name: item?.name || '',
+    category: item?.category || '',
+    quantity: item?.quantity?.toString() || '',
+    unit: item?.unit || '個',
+    expiry_date: item?.expiry_date || '',
+    purchase_date: item?.purchase_date || '',
+    notes: item?.notes || ''
+  })
+
+  // アイテムが変更されたらフォームデータを更新
+  useEffect(() => {
+    if (item) {
+      setFormData({
+        name: item.name,
+        category: item.category,
+        quantity: item.quantity.toString(),
+        unit: item.unit,
+        expiry_date: item.expiry_date || '',
+        purchase_date: item.purchase_date || '',
+        notes: item.notes || ''
+      })
+      setError('')
+    }
+  }, [item])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!item) return
+    
+    setLoading(true)
+    setError('')
+
+    try {
+      const { error } = await supabase
+        .from('items')
+        .update({
+          name: formData.name,
+          category: formData.category || 'その他',
+          quantity: parseFloat(formData.quantity) || 1,
+          unit: formData.unit,
+          expiry_date: formData.expiry_date || null,
+          purchase_date: formData.purchase_date || null,
+          notes: formData.notes || null,
+        })
+        .eq('id', item.id)
+
+      if (error) throw error
+      
+      onSuccess()
+      onOpenChange(false)
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!item || !confirm('この食材を削除しますか？')) return
+    
+    setLoading(true)
+    setError('')
+
+    try {
+      const { error } = await supabase
+        .from('items')
+        .delete()
+        .eq('id', item.id)
+
+      if (error) throw error
+      
+      onSuccess()
+      onOpenChange(false)
+    } catch (error: any) {
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!item) return null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>食材を編集</DialogTitle>
+          <DialogDescription>
+            食材の情報を編集できます
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="name">食材名 *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="例: りんご"
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="category">カテゴリ</Label>
+            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <SelectTrigger>
+                <SelectValue placeholder="カテゴリを選択" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="quantity">数量</Label>
+              <Input
+                id="quantity"
+                type="number"
+                step="0.1"
+                value={formData.quantity}
+                onChange={(e) => setFormData({...formData, quantity: e.target.value})}
+                placeholder="1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="unit">単位</Label>
+              <Select value={formData.unit} onValueChange={(value) => setFormData({...formData, unit: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNITS.map((unit) => (
+                    <SelectItem key={unit} value={unit}>
+                      {unit}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="purchase_date">購入日</Label>
+              <Input
+                id="purchase_date"
+                type="date"
+                value={formData.purchase_date}
+                onChange={(e) => setFormData({...formData, purchase_date: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="expiry_date">賞味期限</Label>
+              <Input
+                id="expiry_date"
+                type="date"
+                value={formData.expiry_date}
+                onChange={(e) => setFormData({...formData, expiry_date: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="notes">メモ</Label>
+            <Input
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              placeholder="冷蔵庫の野菜室に保存など"
+            />
+          </div>
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              削除
+            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={loading}
+                className="flex-1 sm:flex-none"
+              >
+                キャンセル
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 sm:flex-none"
+              >
+                {loading ? '更新中...' : '更新'}
+              </Button>
+            </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
