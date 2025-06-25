@@ -8,41 +8,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
+import { useItemsFilter } from '@/hooks/useItemsFilter'
+import { useItemOperations } from '@/hooks/useItemOperations'
 import AddItemForm from '@/components/items/add-item-form'
 import EditItemDialog from '@/components/items/edit-item-dialog'
-import { ArrowUpDown, Search, Filter, X, Edit, AlertCircle, Clock, AlertTriangle } from 'lucide-react'
+import { ArrowUpDown, Search, Filter, X, Edit, AlertCircle, AlertTriangle, Clock } from 'lucide-react'
+import { Item, ConsumptionFilter, ExpiryStatus } from '@/types/item'
+import { getExpiryStatus, getExpiryStatusInfo } from '@/utils/expiryStatus'
 
-interface Item {
-  id: string
-  name: string
-  category: string
-  quantity: number
-  unit: string
-  expiry_date: string | null
-  purchase_date: string | null
-  is_consumed: boolean
-  created_at: string
-  notes: string | null
-}
-
-type SortOption = 'newest' | 'oldest' | 'expiry-asc' | 'expiry-desc' | 'purchase-asc' | 'purchase-desc' | 'name-asc' | 'name-desc'
-type ConsumptionFilter = 'default' | 'unconsumed' | 'recent-consumed' | 'all-consumed' | 'all'
-type ExpiryStatus = 'expired' | 'warning' | 'caution' | 'normal' | 'no-expiry'
 
 export default function ItemsPage() {
   const { user } = useAuth()
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [sortBy, setSortBy] = useState<SortOption>('newest')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState<string>('all')
-  const [consumptionFilter, setConsumptionFilter] = useState<ConsumptionFilter>('default')
-  const [dateFilterFrom, setDateFilterFrom] = useState('')
-  const [dateFilterTo, setDateFilterTo] = useState('')
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [frozenOrder, setFrozenOrder] = useState<Item[]>([])
+
+  const {
+    filters,
+    updateFilter,
+    clearFilters,
+    filteredItems,
+    filteredAndSortedItems,
+    availableCategories,
+    frozenOrder,
+    setFrozenOrder
+  } = useItemsFilter(items)
+
+  const { toggleConsumption } = useItemOperations()
 
   useEffect(() => {
     if (user) {
@@ -67,253 +61,8 @@ export default function ItemsPage() {
     }
   }
 
-  const sortItems = (items: Item[], sortOption: SortOption): Item[] => {
-    // 固定順序がある場合はそれを使用
-    if (frozenOrder.length > 0) {
-      const itemMap = new Map(items.map(item => [item.id, item]))
-      return frozenOrder.map(frozenItem => itemMap.get(frozenItem.id) || frozenItem).filter(Boolean)
-    }
-    
-    const sorted = [...items]
-    
-    switch (sortOption) {
-      case 'newest':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 登録日（新しい順）
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        })
-      case 'oldest':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 登録日（古い順）
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        })
-      case 'expiry-asc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 期限順（近い順）
-          if (!a.expiry_date && !b.expiry_date) return 0
-          if (!a.expiry_date) return 1
-          if (!b.expiry_date) return -1
-          return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
-        })
-      case 'expiry-desc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 期限順（遠い順）
-          if (!a.expiry_date && !b.expiry_date) return 0
-          if (!a.expiry_date) return 1
-          if (!b.expiry_date) return -1
-          return new Date(b.expiry_date).getTime() - new Date(a.expiry_date).getTime()
-        })
-      case 'purchase-asc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 購入日順（古い順）
-          if (!a.purchase_date && !b.purchase_date) return 0
-          if (!a.purchase_date) return 1
-          if (!b.purchase_date) return -1
-          return new Date(a.purchase_date).getTime() - new Date(b.purchase_date).getTime()
-        })
-      case 'purchase-desc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 購入日順（新しい順）
-          if (!a.purchase_date && !b.purchase_date) return 0
-          if (!a.purchase_date) return 1
-          if (!b.purchase_date) return -1
-          return new Date(b.purchase_date).getTime() - new Date(a.purchase_date).getTime()
-        })
-      case 'name-asc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 名前順（あ→ん）
-          return a.name.localeCompare(b.name, 'ja')
-        })
-      case 'name-desc':
-        return sorted.sort((a, b) => {
-          // 第1ソート: 消費状態（未消費→消費済み）
-          if (a.is_consumed !== b.is_consumed) {
-            return a.is_consumed ? 1 : -1
-          }
-          // 第2ソート: 名前順（ん→あ）
-          return b.name.localeCompare(a.name, 'ja')
-        })
-      default:
-        return sorted
-    }
-  }
 
-  const isRecentlyConsumed = (item: Item): boolean => {
-    if (!item.is_consumed || !item.consumed_at) return false
-    const consumedDate = new Date(item.consumed_at)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-    return consumedDate >= sevenDaysAgo
-  }
 
-  const getExpiryStatus = (item: Item): ExpiryStatus => {
-    if (!item.expiry_date) return 'no-expiry'
-    
-    const expiryDate = new Date(item.expiry_date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    expiryDate.setHours(0, 0, 0, 0)
-    
-    const diffInDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    
-    if (diffInDays < 0) return 'expired'      // 期限切れ
-    if (diffInDays <= 3) return 'warning'    // 3日以内
-    if (diffInDays <= 7) return 'caution'    // 7日以内
-    return 'normal'                           // 通常
-  }
-
-  const getExpiryStatusInfo = (status: ExpiryStatus, item: Item) => {
-    if (!item.expiry_date) return null
-    
-    const expiryDate = new Date(item.expiry_date)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    expiryDate.setHours(0, 0, 0, 0)
-    
-    const diffInDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    
-    switch (status) {
-      case 'expired':
-        return {
-          icon: AlertCircle,
-          color: 'text-red-600',
-          bgColor: 'bg-red-50',
-          borderColor: 'border-red-200',
-          message: `${Math.abs(diffInDays)}日前に期限切れ`,
-          badgeColor: 'bg-red-100 text-red-800'
-        }
-      case 'warning':
-        return {
-          icon: AlertTriangle,
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-50',
-          borderColor: 'border-orange-200',
-          message: diffInDays === 0 ? '今日が期限' : `あと${diffInDays}日で期限切れ`,
-          badgeColor: 'bg-orange-100 text-orange-800'
-        }
-      case 'caution':
-        return {
-          icon: Clock,
-          color: 'text-yellow-600',
-          bgColor: 'bg-yellow-50',
-          borderColor: 'border-yellow-200',
-          message: `あと${diffInDays}日で期限切れ`,
-          badgeColor: 'bg-yellow-100 text-yellow-800'
-        }
-      default:
-        return null
-    }
-  }
-
-  const filterItems = (items: Item[]): Item[] => {
-    let filtered = items
-
-    // 検索クエリでフィルタリング
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(item => 
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.notes?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-
-    // カテゴリでフィルタリング
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(item => item.category === categoryFilter)
-    }
-
-    // 消費状態でフィルタリング
-    switch (consumptionFilter) {
-      case 'default':
-        // デフォルト: 未消費 + 消費済み（7日以内）
-        filtered = filtered.filter(item => 
-          !item.is_consumed || isRecentlyConsumed(item)
-        )
-        break
-      case 'unconsumed':
-        // 未消費のみ
-        filtered = filtered.filter(item => !item.is_consumed)
-        break
-      case 'recent-consumed':
-        // 消費済み（7日以内）のみ
-        filtered = filtered.filter(item => 
-          item.is_consumed && isRecentlyConsumed(item)
-        )
-        break
-      case 'all-consumed':
-        // 消費済み（すべて）
-        filtered = filtered.filter(item => item.is_consumed)
-        break
-      case 'all':
-        // すべて表示（フィルターなし）
-        break
-    }
-
-    // 購入日期間でフィルタリング
-    if (dateFilterFrom || dateFilterTo) {
-      filtered = filtered.filter(item => {
-        if (!item.purchase_date) return false
-        
-        const purchaseDate = new Date(item.purchase_date)
-        const fromDate = dateFilterFrom ? new Date(dateFilterFrom) : null
-        const toDate = dateFilterTo ? new Date(dateFilterTo) : null
-        
-        // 開始日のチェック
-        if (fromDate && purchaseDate < fromDate) return false
-        
-        // 終了日のチェック
-        if (toDate && purchaseDate > toDate) return false
-        
-        return true
-      })
-    }
-
-    return filtered
-  }
-
-  const filteredItems = filterItems(items)
-  const sortedItems = sortItems(filteredItems, sortBy)
-
-  // 利用可能なカテゴリを取得
-  const availableCategories = [...new Set(items.map(item => item.category))].sort()
-
-  const getConsumptionFilterLabel = (filter: ConsumptionFilter): string => {
-    switch (filter) {
-      case 'default': return '未消費＋最近消費'
-      case 'unconsumed': return '未消費のみ'
-      case 'recent-consumed': return '最近消費のみ'
-      case 'all-consumed': return '消費済み（全て）'
-      case 'all': return 'すべて表示'
-      default: return ''
-    }
-  }
 
   const handleAddSuccess = () => {
     setShowAddForm(false)
@@ -329,42 +78,21 @@ export default function ItemsPage() {
     setShowEditDialog(true)
   }
 
-  const handleSortChange = (newSortBy: SortOption) => {
-    setSortBy(newSortBy)
+  // 消費状態変更ハンドラー
+  const handleToggleConsumption = async (itemId: string, currentStatus: boolean) => {
+    await toggleConsumption(itemId, currentStatus)
+    fetchItems() // データを再取得して最新状態に同期
+  }
+
+  // ソート変更ハンドラー
+  const handleSortChange = (sortOption: string) => {
+    updateFilter('sortBy', sortOption)
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 
-  const toggleConsumption = async (itemId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('items')
-        .update({ 
-          is_consumed: !currentStatus,
-          consumed_at: !currentStatus ? new Date().toISOString() : null
-        })
-        .eq('id', itemId)
-
-      if (error) throw error
-      
-      // 現在のソート済みアイテムリストを固定順序として保存
-      const currentSorted = sortItems(filteredItems, sortBy)
-      setFrozenOrder(currentSorted)
-      
-      // アイテムの状態をローカルで更新
-      setItems(prevItems => 
-        prevItems.map(item => 
-          item.id === itemId 
-            ? { 
-                ...item, 
-                is_consumed: !currentStatus,
-                consumed_at: !currentStatus ? new Date().toISOString() : null
-              }
-            : item
-        )
-      )
-    } catch (error) {
-      console.error('消費状態更新エラー:', error)
-    }
+  // フィルタークリアハンドラー
+  const handleClearFilters = () => {
+    clearFilters()
   }
 
   if (loading) {
@@ -406,13 +134,13 @@ export default function ItemsPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="食材名・メモで検索..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={filters.searchQuery}
+                  onChange={(e) => updateFilter('searchQuery', e.target.value)}
                   className="pl-10 pr-10"
                 />
-                {searchQuery && (
+                {filters.searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => updateFilter('searchQuery', '')}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <X className="h-4 w-4" />
@@ -427,8 +155,8 @@ export default function ItemsPage() {
                 <Label className="text-sm font-medium">購入日（開始）</Label>
                 <Input
                   type="date"
-                  value={dateFilterFrom}
-                  onChange={(e) => setDateFilterFrom(e.target.value)}
+                  value={filters.dateFilterFrom}
+                  onChange={(e) => updateFilter('dateFilterFrom', e.target.value)}
                   className="w-full"
                 />
               </div>
@@ -436,8 +164,8 @@ export default function ItemsPage() {
                 <Label className="text-sm font-medium">購入日（終了）</Label>
                 <Input
                   type="date"
-                  value={dateFilterTo}
-                  onChange={(e) => setDateFilterTo(e.target.value)}
+                  value={filters.dateFilterTo}
+                  onChange={(e) => updateFilter('dateFilterTo', e.target.value)}
                   className="w-full"
                 />
               </div>
@@ -448,7 +176,7 @@ export default function ItemsPage() {
               {/* 消費状態フィルター */}
               <div className="sm:w-48">
                 <Label className="text-sm font-medium">表示範囲</Label>
-                <Select value={consumptionFilter} onValueChange={(value: ConsumptionFilter) => setConsumptionFilter(value)}>
+                <Select value={filters.consumptionFilter} onValueChange={(value: ConsumptionFilter) => updateFilter('consumptionFilter', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -467,7 +195,7 @@ export default function ItemsPage() {
                 <Label className="text-sm font-medium">カテゴリ</Label>
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4 text-muted-foreground" />
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <Select value={filters.categoryFilter} onValueChange={(value) => updateFilter('categoryFilter', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="カテゴリ" />
                     </SelectTrigger>
@@ -488,7 +216,7 @@ export default function ItemsPage() {
                 <Label className="text-sm font-medium">並び順</Label>
                 <div className="flex items-center gap-2">
                   <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-                  <Select value={sortBy} onValueChange={handleSortChange}>
+                  <Select value={filters.sortBy} onValueChange={handleSortChange}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -509,32 +237,26 @@ export default function ItemsPage() {
           </div>
 
           {/* 検索結果サマリー */}
-          {(searchQuery || categoryFilter !== 'all' || consumptionFilter !== 'default' || dateFilterFrom || dateFilterTo) && (
+          {(filters.searchQuery || filters.categoryFilter !== 'all' || filters.consumptionFilter !== 'default' || filters.dateFilterFrom || filters.dateFilterTo) && (
             <div className="mt-4 text-sm text-muted-foreground">
               {filteredItems.length}件の食材が見つかりました
-              {searchQuery && ` (検索: "${searchQuery}")`}
-              {categoryFilter !== 'all' && ` (カテゴリ: ${categoryFilter})`}
-              {consumptionFilter !== 'default' && ` (表示範囲: ${getConsumptionFilterLabel(consumptionFilter)})`}
-              {(dateFilterFrom || dateFilterTo) && ` (購入日: ${dateFilterFrom || '開始日未設定'}～${dateFilterTo || '終了日未設定'})`}
+              {filters.searchQuery && ` (検索: "${filters.searchQuery}")`}
+              {filters.categoryFilter !== 'all' && ` (カテゴリ: ${filters.categoryFilter})`}
+              {filters.consumptionFilter !== 'default' && ` (表示範囲: ${filters.consumptionFilter})`}
+              {(filters.dateFilterFrom || filters.dateFilterTo) && ` (購入日: ${filters.dateFilterFrom || '開始日未設定'}～${filters.dateFilterTo || '終了日未設定'})`}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {sortedItems.length === 0 && items.length > 0 ? (
+      {filteredAndSortedItems.length === 0 && items.length > 0 ? (
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
               <p className="text-muted-foreground mb-4">条件に一致する食材が見つかりませんでした</p>
               <Button 
                 variant="outline" 
-                onClick={() => {
-                  setSearchQuery('')
-                  setCategoryFilter('all')
-                  setConsumptionFilter('default')
-                  setDateFilterFrom('')
-                  setDateFilterTo('')
-                }}
+                onClick={handleClearFilters}
               >
                 フィルターをクリア
               </Button>
@@ -554,7 +276,7 @@ export default function ItemsPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {sortedItems.map((item) => {
+          {filteredAndSortedItems.map((item) => {
             const expiryStatus = getExpiryStatus(item)
             const statusInfo = getExpiryStatusInfo(expiryStatus, item)
             
@@ -612,7 +334,7 @@ export default function ItemsPage() {
                         <Button
                           variant={item.is_consumed ? "default" : "outline"}
                           size="sm"
-                          onClick={() => toggleConsumption(item.id, item.is_consumed)}
+                          onClick={() => handleToggleConsumption(item.id, item.is_consumed)}
                           className="flex-1"
                         >
                           {item.is_consumed ? '戻す' : '消費'}
