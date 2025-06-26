@@ -23,12 +23,32 @@ export default function AuthForm() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         })
-        if (error) throw error
-        setMessage('確認メールを送信しました。メールをチェックしてください。')
+        
+        if (error) {
+          // 既存ユーザーの場合のエラーハンドリング
+          if (error.message.includes('User already registered') || 
+              error.message.includes('already been registered') ||
+              error.message.includes('already registered') ||
+              error.message.includes('Email address is already registered')) {
+            setError('このメールアドレスは既に登録されています。ログインしてください。')
+            return
+          } else {
+            throw error
+          }
+        } else if (data.user) {
+          // Supabaseの設定によっては既存ユーザーでもsignUpが成功する場合がある
+          // その場合、data.user.identitiesが空配列になることが多い
+          if (data.user.identities && data.user.identities.length === 0) {
+            setError('このメールアドレスは既に登録されています。ログインしてください。')
+            return
+          } else {
+            setMessage('確認メールを送信しました。メールをチェックしてください。')
+          }
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -39,7 +59,20 @@ export default function AuthForm() {
         window.location.reload()
       }
     } catch (error: any) {
-      setError(error.message)
+      // その他のエラーメッセージを適切に変換
+      let errorMessage = error.message
+      
+      if (errorMessage.includes('Invalid login credentials')) {
+        errorMessage = 'メールアドレスまたはパスワードが正しくありません。'
+      } else if (errorMessage.includes('Email not confirmed')) {
+        errorMessage = 'メールアドレスが確認されていません。確認メールをチェックしてください。'
+      } else if (errorMessage.includes('Password should be at least')) {
+        errorMessage = 'パスワードは6文字以上で入力してください。'
+      } else if (errorMessage.includes('Invalid email')) {
+        errorMessage = '有効なメールアドレスを入力してください。'
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -111,7 +144,11 @@ export default function AuthForm() {
             <div className="text-center">
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsSignUp(!isSignUp)
+                  setError('')
+                  setMessage('')
+                }}
                 className="text-sm text-blue-600 hover:text-blue-500"
                 disabled={isLoading}
               >
