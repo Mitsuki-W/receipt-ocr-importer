@@ -69,32 +69,65 @@ export class UniversalReceiptParser {
   
   private initializeKeywords() {
     this.foodKeywords = new Set([
+      // 野菜類
       'レタス', 'キャベツ', 'にんじん', 'たまねぎ', 'じゃがいも', 'トマト', 'きゅうり', 'なす', 'ピーマン', 'もやし',
       'ほうれん草', '白菜', '大根', 'しめじ', 'エリンギ', 'しいたけ', 'ネギ', 'ニラ', 'アスパラ', 'ブロッコリー',
-      'ごぼう', 'いんげん', 'ぶなしめじ', 'りんご', 'バナナ', 'みかん', 'いちご', 'ぶどう', 'なし', 'もも', 'メロン',
-      'すいか', 'キウイ', 'パイン', 'オレンジ', 'グレープフルーツ', 'レモン', 'ライム', 'あじわい', 'カップ',
+      'ごぼう', 'いんげん', 'ぶなしめじ',
+      
+      // 果物類
+      'りんご', 'バナナ', 'みかん', 'いちご', 'ぶどう', 'なし', 'もも', 'メロン', 'すいか', 'キウイ', 'パイン', 
+      'オレンジ', 'グレープフルーツ', 'レモン', 'ライム', 'あじわい', 'カップ',
+      
+      // 肉類
       '牛肉', '豚肉', '鶏肉', 'ひき肉', 'ソーセージ', 'ハム', 'ベーコン', '若鶏', 'ロース', 'モモ', 'むね', 'から揚',
-      'シーチキン', 'ばら', 'こま', 'うす切', 'うす切り', 'さけ', 'まぐろ', 'あじ', 'さば', 'いわし', '刺身', '切身',
-      'かれい', 'からすかれい', 'シュリンプ', 'カクテル', '牛乳', 'ヨーグルト', 'チーズ', 'バター', '生クリーム',
-      'ミルク', 'ユタ', 'ギュウニュウ', 'キュウニュウ', 'パン', '食パン', '米', 'パスタ', 'うどん', 'そば', '麺',
-      'ラーメン', 'そうめん', '風麺', 'しょうゆ', '味噌', '塩', '砂糖', '油', 'みりん', '酢', 'ソース', 'ごま油',
-      'マヨネーズ', 'ケチャップ', 'こんぶ', '金麦', '糖質オフ', 'コーラ', 'ジュース', 'お茶', 'コーヒー', '水',
-      'ビール', 'ワイン', '茶', '冷凍', 'アイス', '豆腐', 'ケンち', 'スンドゥブ', 'スンドゥプ', '卵', 'うずら',
-      '厚あげ', 'コーン', 'チキン', 'パルム', 'チョコ', 'スイー', 'やわらか', 'フレッシュバック', '無添加',
-      '阿蘇', 'TVやさしさ', 'TV低糖質'
+      'ばら', 'こま', 'うす切', 'うす切り', 'ロースハム', '豚こま', '豚ひき',
+      
+      // 魚類
+      'さけ', 'まぐろ', 'あじ', 'さば', 'いわし', '刺身', '切身', 'かれい', 'からすかれい', 'シーチキン',
+      'シュリンプ', 'カクテル',
+      
+      // 乳製品
+      '牛乳', 'ヨーグルト', 'チーズ', 'バター', '生クリーム', 'ミルク', 'ギュウニュウ', 'キュウニュウ',
+      
+      // 穀物・パン類
+      'パン', '食パン', '米', 'パスタ', 'うどん', 'そば', '麺', 'ラーメン', 'そうめん', '風麺', '低糖質',
+      
+      // 調味料
+      'しょうゆ', '味噌', '塩', '砂糖', '油', 'みりん', '酢', 'ソース', 'ごま油', 'マヨネーズ', 'ケチャップ',
+      'こんぶ', '塩こんぶ', '純正', 'フレッシュパック',
+      
+      // 飲料
+      '糖質オフ', 'コーラ', 'ジュース', 'お茶', 'コーヒー', '水', 'ビール', 'ワイン', '茶',
+      
+      // 冷凍・アイス
+      '冷凍', 'アイス',
+      
+      // 豆腐・大豆製品
+      '豆腐', 'ケンち', 'スンドゥブ', 'スンドゥプ', '厚あげ', 'やわらか', '特濃',
+      
+      // 卵・その他
+      '卵', 'うずら', 'コーン', 'チキン', 'チョコ', 'スイー', 'フレッシュパック', '無添加',
+      'やさしさ', '想い', 'チゲ'
     ])
     
     this.excludeKeywords = new Set([
+      // レシート関連
       '小計', '合計', '税込', '税抜', '消費税', '割引', '現金', 'クレジット', 'クレカ', 'レシート', '領収書',
       '店舗', '住所', '電話', 'TEL', 'FAX', '営業時間', 'ありがとう', 'またお越し', 'ポイント', 'カード',
-      'お預り', 'おつり', 'お釣り', 'WAON', 'nanaco', 'Suica', 'PASMO', 'PayPay', 'LINE Pay', 'レジ',
-      '登録機', '釣銭', 'おつり', '支払', '決済', '精算', '会計', '責:', '本日', '日時', '時刻', '年', '月',
-      '日', '時', '分', '秒', '曜日', '2024', '2025', '2023', '2022', '令和', '平成', '株式会社', '有限会社',
-      '合同会社', '(株)', '(有)', 'Ltd', 'Inc', 'Co', 'バーコード', 'QRコード', 'コード', 'No', 'ID',
-      '番号', 'お買上', 'スキャン', '外税', '内税', '対象額', '対象商品', '軽減税率', '標準税率', '温め',
-      'あたため', 'レジ袋', 'エコ', '割り箸', 'スプーン', 'フォーク', '受付センター', 'センター', 'LC',
-      'LaCuCa', '加算', '週間', '以内', '点数', 'MLEP', 'Market', 'Edy', 'WHOLESALE', 'BIZ', 'GOLD',
-      '会員', '売上', 'RECEIPT', 'TOTAL', 'SUBTOTAL', 'TAX', 'CASH', 'CREDIT'
+      'お預り', 'おつり', 'お釣り', 'レジ', '登録機', '釣銭', 'おつり', '支払', '決済', '精算', '会計', 
+      '責:', '本日', '日時', '時刻', '年', '月', '日', '時', '分', '秒', '曜日', '2024', '2025', '2023', '2022', 
+      '令和', '平成', '株式会社', '有限会社', '合同会社', '(株)', '(有)', 'Ltd', 'Inc', 'Co', 
+      'バーコード', 'QRコード', 'コード', 'No', 'ID', '番号', 'お買上', 'スキャン', '外税', '内税', 
+      '対象額', '対象商品', '軽減税率', '標準税率', '温め', 'あたため', '割り箸', 'スプーン', 'フォーク', 
+      '受付センター', 'センター', '加算', '週間', '以内', '点数', '会員', '売上', 
+      'RECEIPT', 'TOTAL', 'SUBTOTAL', 'TAX', 'CASH', 'CREDIT', 'WHOLESALE', 'BIZ', 'GOLD',
+      
+      // 非食品商品（袋・雑貨・衣類など）
+      'レジ袋', 'エコ袋', 'エコ', 'エコバッグ', '袋', 'バッグ', 'シューズ', '靴', 'サンダル', 'ブーツ',
+      'ティッシュ', 'バスティッシュ', 'BATH', 'TISSUE', 'トイレットペーパー', 
+      '洗剤', 'シャンプー', 'ボディソープ', '化粧品', 'コスメ',
+      '文房具', 'ペン', 'ノート', '本', '雑誌', 'CD', 'DVD', '電池', 'バッテリー', '充電器',
+      '衣類', '服', 'Tシャツ', 'シャツ', 'パンツ', 'ジーンズ', '靴下', '下着', 'タオル'
     ])
   }
   
@@ -560,36 +593,92 @@ export class UniversalReceiptParser {
   private extractGenericFormat(analyses: LineAnalysis[], usedIndices: Set<number>): ParsedItem[] {
     const items: ParsedItem[] = []
     
-    for (let i = 0; i < analyses.length - 1; i++) {
+    for (let i = 0; i < analyses.length; i++) {
       if (usedIndices.has(i)) continue
       
       const currentLine = analyses[i]
-      const nextLine = analyses[i + 1]
       
-      if (currentLine.type === LineType.ITEM_NAME && 
-          nextLine.type === LineType.PRICE_ONLY) {
+      // 複合パターン: 商品名　数量×単価\合計
+      const complexPattern = currentLine.content.match(/^(.+?)\s+(\d+)コ[×xX]単(\d+)\\(\d+)$/)
+      if (complexPattern) {
+        const name = complexPattern[1].trim()
+        const quantity = parseInt(complexPattern[2])
+        const unitPrice = parseInt(complexPattern[3])
+        const totalPrice = parseInt(complexPattern[4])
         
-        const name = currentLine.content.trim()
-        const price = this.extractPriceFromLine(nextLine.content)
+        // 価格の整合性チェック
+        const isMultipleSet = quantity > 1
+        const maxPrice = isMultipleSet ? 10000 : 5000
+        if (quantity * unitPrice === totalPrice && this.isValidItemName(name) && totalPrice >= 10 && totalPrice <= maxPrice) {
+          items.push({
+            name,
+            price: totalPrice,
+            quantity,
+            category: this.categorizeItem(name),
+            confidence: 0.85,
+            detectionMethod: 'complex-pattern',
+            rawLines: [currentLine.content],
+            lineIndices: [i]
+          })
+          usedIndices.add(i)
+          continue
+        }
+      }
+      
+      // 単一行内パターン: 商品名\価格
+      const inlinePattern = currentLine.content.match(/^(.+?)\\(\d{1,5})$/)
+      if (inlinePattern) {
+        const name = inlinePattern[1].trim()
+        const price = parseInt(inlinePattern[2])
         
-        if (price && this.isValidItemName(name) && price >= 10 && price <= 99999) {
+        const maxPrice = /\d+個|\d+缶|\d+パック/.test(name) ? 10000 : 5000
+        if (this.isValidItemName(name) && price >= 10 && price <= maxPrice) {
           items.push({
             name,
             price,
             quantity: 1,
             category: this.categorizeItem(name),
-            confidence: 0.7,
-            detectionMethod: 'generic-name-price',
-            rawLines: [currentLine.content, nextLine.content],
-            lineIndices: [i, i + 1]
+            confidence: 0.8,
+            detectionMethod: 'inline-pattern',
+            rawLines: [currentLine.content],
+            lineIndices: [i]
           })
-          
           usedIndices.add(i)
-          usedIndices.add(i + 1)
-          i++
+          continue
         }
       }
       
+      // 2行パターン: 商品名 → 価格
+      if (i < analyses.length - 1) {
+        const nextLine = analyses[i + 1]
+        
+        if (currentLine.type === LineType.ITEM_NAME && 
+            nextLine.type === LineType.PRICE_ONLY) {
+          
+          const name = currentLine.content.trim()
+          const price = this.extractPriceFromLine(nextLine.content)
+          
+          if (price && this.isValidItemName(name) && price >= 10 && price <= 5000) {
+            items.push({
+              name,
+              price,
+              quantity: 1,
+              category: this.categorizeItem(name),
+              confidence: 0.7,
+              detectionMethod: 'generic-name-price',
+              rawLines: [currentLine.content, nextLine.content],
+              lineIndices: [i, i + 1]
+            })
+            
+            usedIndices.add(i)
+            usedIndices.add(i + 1)
+            i++
+            continue
+          }
+        }
+      }
+      
+      // アスタリスクパターン
       if (i > 0 && !usedIndices.has(i - 1)) {
         const prevLine = analyses[i - 1]
         const asteriskMatch = currentLine.content.match(/^(\d{1,5})\*\s*$/)
@@ -598,7 +687,8 @@ export class UniversalReceiptParser {
           const name = prevLine.content.trim()
           const price = parseInt(asteriskMatch[1])
           
-          if (this.isValidItemName(name) && price >= 10 && price <= 99999) {
+          const maxPrice = /\d+個|\d+缶|\d+パック/.test(name) ? 10000 : 5000
+        if (this.isValidItemName(name) && price >= 10 && price <= maxPrice) {
             items.push({
               name,
               price,
@@ -644,21 +734,37 @@ export class UniversalReceiptParser {
   
   private finalValidation(items: ParsedItem[], analyses: LineAnalysis[]): ParsedItem[] {
     let validated = items.filter(item => {
+      // 商品名の妥当性チェック
       if (!this.isValidItemName(item.name)) {
         return false
       }
       
-      if (!item.price || item.price < 10 || item.price > 99999) {
+      // 商品名のクリーニング
+      item.name = this.cleanItemName(item.name)
+      
+      // 価格の妥当性チェック（食品として妥当な範囲）
+      // 複数個セットの場合はより高い価格を許可
+      const isMultipleSet = /\d+個|\d+缶|\d+パック/.test(item.name)
+      const maxPrice = isMultipleSet ? 10000 : 5000
+      if (!item.price || item.price < 10 || item.price > maxPrice) {
         return false
       }
       
-      if (Array.from(this.excludeKeywords).some(keyword => item.name.includes(keyword))) {
+      // 除外キーワードチェック
+      if (Array.from(this.excludeKeywords).some(keyword => 
+        item.name.toLowerCase().includes(keyword.toLowerCase()))) {
+        return false
+      }
+      
+      // 非食品商品の詳細チェック
+      if (this.isNonFoodItem(item.name, item.price)) {
         return false
       }
       
       return true
     })
     
+    // 重複除去
     const seen = new Set<string>()
     validated = validated.filter(item => {
       const key = `${item.name}-${item.price}`
@@ -669,9 +775,95 @@ export class UniversalReceiptParser {
       return true
     })
     
+    // 信頼度フィルタリング
     validated = validated.filter(item => item.confidence >= 0.5)
     
     return validated.sort((a, b) => b.confidence - a.confidence)
+  }
+  
+  private cleanItemName(name: string): string {
+    // よくある誤認識を修正
+    const corrections: { [key: string]: string } = {
+      'うずらの虜': 'うずらの卵',
+      '抵当質': '低糖質',
+      'ギュウニュウ': '牛乳',
+      'キュウニュウ': '牛乳',
+      'スンドゥブチゲ': 'スンドゥブチゲ',
+      'うずらの虜50個': 'うずらの卵',
+      'ももから揚': 'ももから揚げ',
+      'やさしさ想いスイー': 'やさしさ想いスイートポテト',
+      '抵当質うどん風麺': '低糖質うどん風麺',
+      'グレープフルーツカップ': 'グレープフルーツカップ',
+      '特濃ケンち': '特濃絹ごし豆腐'
+    }
+    
+    let cleaned = name
+    for (const [wrong, correct] of Object.entries(corrections)) {
+      if (cleaned.includes(wrong)) {
+        cleaned = cleaned.replace(wrong, correct)
+      }
+    }
+    
+    // 不要な文字・パターンの削除
+    cleaned = cleaned
+      .replace(/^\*+/, '')  // 先頭のアスタリスク
+      .replace(/\s+/g, ' ') // 連続する空白を1つに
+      .replace(/１\／４/g, '1/4') // 全角数字を半角に
+      .replace(/\s+バラ$/, '') // 末尾の「バラ」を削除
+      .replace(/^[A-Z]{2,3}\s+/, '') // 先頭の2-3文字のアルファベット（KS、TV等）を削除
+      .trim()
+    
+    return cleaned
+  }
+  
+  private isNonFoodItem(name: string, price: number): boolean {
+    // より厳格な非食品パターン
+    const nonFoodPatterns = [
+      /シューズ|靴|サンダル|ブーツ/,
+      /バッグ|袋|エコ|レジ袋/,
+      /ティッシュ|TISSUE|BATH.*TISSUE/,
+      /洗剤|シャンプー|石鹸/,
+      /衣類|服|シャツ|パンツ/,
+      /文房具|ペン|ノート/,
+      /化粧品|コスメ/,
+      /電池|充電器/,
+      /タオル|下着/
+    ]
+    
+    // パターンマッチング（大文字小文字を区別しない）
+    const nameUpper = name.toUpperCase()
+    if (nonFoodPatterns.some(pattern => pattern.test(nameUpper))) {
+      return true
+    }
+    
+    // 特定の完全一致パターン
+    const exactNonFoodItems = [
+      'レジ袋', 'エコ袋', 'レジ袋（大）', 'レジ袋（小）',
+      'シューズ', 'BATH TISSUE', 'バスティッシュ'
+    ]
+    
+    if (exactNonFoodItems.some(item => 
+      nameUpper.includes(item.toUpperCase()) || 
+      name.includes(item))) {
+      return true
+    }
+    
+    // 異常に高い価格（食品としては不自然）
+    // ただし、複数個セットの商品は除外（例：スンドゥブチゲ12個\1968）
+    const isMultipleSet = /\d+個|\d+缶|\d+パック/.test(name)
+    if (price > 4000 && !isMultipleSet) {
+      return true
+    }
+    if (price > 10000) {  // 10000円を超える場合は確実に非食品
+      return true
+    }
+    
+    // 高額商品で2-3文字のアルファベットコードがある場合（ブランド商品）
+    if (price > 3000 && /^[A-Z]{2,3}\s/.test(name)) {
+      return true
+    }
+    
+    return false
   }
   
   private isValidItemName(name: string): boolean {

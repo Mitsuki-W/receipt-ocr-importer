@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ImageAnnotatorClient } from '@google-cloud/vision'
 import sharp from 'sharp'
 import { parseReceiptTextUniversal } from '@/lib/improvedIntelligentParser'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 // Google Cloud Vision クライアントの初期化
 const visionClient = new ImageAnnotatorClient({
@@ -16,6 +18,14 @@ const visionClient = new ImageAnnotatorClient({
 
 export async function POST(request: NextRequest) {
   try {
+    // 認証チェック
+    const supabase = createRouteHandlerClient({ cookies })
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
+
+    if (authError || !session) {
+      return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('image') as File
 
@@ -29,11 +39,12 @@ export async function POST(request: NextRequest) {
 
     // 画像を最適化（サイズ縮小・品質向上）
     const optimizedBuffer = await sharp(buffer)
-      .resize(1500, 1500, { 
+      .resize(1200, 1200, { 
         fit: 'inside',
         withoutEnlargement: true 
       })
-      .jpeg({ quality: 90 })
+      .jpeg({ quality: 85 })
+      .sharpen()
       .toBuffer()
 
     // Google Cloud Vision APIでOCR実行
@@ -53,10 +64,22 @@ export async function POST(request: NextRequest) {
     // 汎用レシートパーサーを使用してアイテムを抽出
     const items = parseReceiptTextUniversal(extractedText)
 
+    // デバッグ用ログ
+    console.log('=== OCR デバッグ情報 ===')
+    console.log('抽出されたテキスト:')
+    console.log(extractedText)
+    console.log('\n解析された商品:')
+    console.log(JSON.stringify(items, null, 2))
+    console.log('===================')
+
     return NextResponse.json({
       success: true,
       extractedText,
-      items
+      items,
+      debug: {
+        textLines: extractedText.split('\n').length,
+        itemsFound: items.length
+      }
     })
 
   } catch (error: any) {

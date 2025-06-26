@@ -35,6 +35,8 @@ const CATEGORIES = [
   '乳製品',
   'パン・穀物',
   '調味料',
+  '飲料',
+  'お菓子',
   '冷凍食品',
   '缶詰・瓶詰',
   'その他'
@@ -244,7 +246,7 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
             </Alert>
           )}
 
-          <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-2">
             <Button
               type="button"
               variant="destructive"
@@ -254,24 +256,22 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
             >
               削除
             </Button>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={loading}
-                className="flex-1 sm:flex-none"
-              >
-                キャンセル
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                className="flex-1 sm:flex-none"
-              >
-                {loading ? '更新中...' : '更新'}
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              キャンセル
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
+              {loading ? '更新中...' : '更新'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

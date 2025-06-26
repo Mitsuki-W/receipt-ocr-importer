@@ -17,9 +17,8 @@ export function useItemsFilter(items: Item[]) {
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
     setFilters(prev => ({ ...prev, [key]: value }))
-    if (key === 'sortBy') {
-      setFrozenOrder([])
-    }
+    // フィルター変更時は固定順序をリセット
+    setFrozenOrder([])
   }
 
   const clearFilters = () => {
@@ -52,6 +51,8 @@ export function useItemsFilter(items: Item[]) {
       '果物',
       'パン・穀物',
       '調味料',
+      '飲料',
+      'お菓子',
       'その他'
     ]
     
