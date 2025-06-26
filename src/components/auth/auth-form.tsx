@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+
+const MAX_LOGIN_ATTEMPTS = 5
+const LOCKOUT_DURATION = 15 * 60 * 1000 // 15分
 
 export default function AuthForm() {
   const [email, setEmail] = useState('')
@@ -14,9 +17,137 @@ export default function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [loginAttempts, setLoginAttempts] = useState(0)
+  const [isLocked, setIsLocked] = useState(false)
+  const [lockoutEndTime, setLockoutEndTime] = useState<number | null>(null)
+  const [remainingTime, setRemainingTime] = useState(0)
+
+  // メールアドレス変更時にロック状態をチェック
+  useEffect(() => {
+    if (!email) {
+      // メールアドレスが空の場合はロック状態をクリア
+      setIsLocked(false)
+      setLockoutEndTime(null)
+      setLoginAttempts(0)
+      setRemainingTime(0)
+      setError('')
+      return
+    }
+
+    // メールアドレス別のロック情報を取得
+    const lockKey = `lockout_${email}`
+    const attemptsKey = `attempts_${email}`
+    
+    const storedAttempts = localStorage.getItem(attemptsKey)
+    const storedLockoutEnd = localStorage.getItem(lockKey)
+    
+    if (storedAttempts) {
+      setLoginAttempts(parseInt(storedAttempts))
+    } else {
+      setLoginAttempts(0)
+    }
+    
+    if (storedLockoutEnd) {
+      const lockoutEnd = parseInt(storedLockoutEnd)
+      const now = Date.now()
+      
+      if (now < lockoutEnd) {
+        setIsLocked(true)
+        setLockoutEndTime(lockoutEnd)
+        setRemainingTime(Math.ceil((lockoutEnd - now) / 1000))
+      } else {
+        // ロック期間が終了している場合はクリア
+        localStorage.removeItem(attemptsKey)
+        localStorage.removeItem(lockKey)
+        setLoginAttempts(0)
+        setIsLocked(false)
+        setLockoutEndTime(null)
+        setError('')
+      }
+    } else {
+      setIsLocked(false)
+      setLockoutEndTime(null)
+      setError('')
+    }
+  }, [email])
+
+  // 残り時間のカウントダウン
+  useEffect(() => {
+    if (!isLocked || !lockoutEndTime) return
+
+    const interval = setInterval(() => {
+      const now = Date.now()
+      const remaining = Math.ceil((lockoutEndTime - now) / 1000)
+      
+      if (remaining <= 0) {
+        // ロック解除
+        setIsLocked(false)
+        setLockoutEndTime(null)
+        setLoginAttempts(0)
+        setRemainingTime(0)
+        setError('') // エラー文をクリア
+        if (email) {
+          localStorage.removeItem(`attempts_${email}`)
+          localStorage.removeItem(`lockout_${email}`)
+        }
+        clearInterval(interval)
+      } else {
+        setRemainingTime(remaining)
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isLocked, lockoutEndTime])
+
+  // ログイン試行失敗時の処理
+  const handleLoginFailure = () => {
+    if (!email) return
+    
+    const newAttempts = loginAttempts + 1
+    setLoginAttempts(newAttempts)
+    
+    const attemptsKey = `attempts_${email}`
+    const lockKey = `lockout_${email}`
+    localStorage.setItem(attemptsKey, newAttempts.toString())
+    
+    if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+      const lockoutEnd = Date.now() + LOCKOUT_DURATION
+      setIsLocked(true)
+      setLockoutEndTime(lockoutEnd)
+      localStorage.setItem(lockKey, lockoutEnd.toString())
+      setError(`ログイン試行回数が上限に達しました。15分後に再試行してください。`)
+    } else {
+      setError(`ログインに失敗しました。残り試行回数: ${MAX_LOGIN_ATTEMPTS - newAttempts}回`)
+    }
+  }
+
+  // ログイン成功時の処理
+  const handleLoginSuccess = () => {
+    setLoginAttempts(0)
+    setIsLocked(false)
+    setLockoutEndTime(null)
+    
+    if (email) {
+      localStorage.removeItem(`attempts_${email}`)
+      localStorage.removeItem(`lockout_${email}`)
+    }
+  }
+
+  // 残り時間をフォーマット
+  const formatRemainingTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // ロック中はログインを実行しない
+    if (isLocked) {
+      return
+    }
+    
     setIsLoading(true)
     setError('')
     setMessage('')
@@ -54,25 +185,47 @@ export default function AuthForm() {
           email,
           password,
         })
-        if (error) throw error
-        // ログイン成功時はページリロードで状態更新
+        if (error) {
+          // ログイン失敗時の処理
+          handleLoginFailure()
+          throw error
+        }
+        // ログイン成功時の処理
+        handleLoginSuccess()
         window.location.reload()
       }
     } catch (error: any) {
-      // その他のエラーメッセージを適切に変換
-      let errorMessage = error.message
-      
-      if (errorMessage.includes('Invalid login credentials')) {
-        errorMessage = 'メールアドレスまたはパスワードが正しくありません。'
-      } else if (errorMessage.includes('Email not confirmed')) {
-        errorMessage = 'メールアドレスが確認されていません。確認メールをチェックしてください。'
-      } else if (errorMessage.includes('Password should be at least')) {
-        errorMessage = 'パスワードは6文字以上で入力してください。'
-      } else if (errorMessage.includes('Invalid email')) {
-        errorMessage = '有効なメールアドレスを入力してください。'
+      // サインアップの場合はログイン試行カウンターを増やさない
+      if (!isSignUp) {
+        // その他のエラーメッセージを適切に変換
+        let errorMessage = error.message
+        
+        if (errorMessage.includes('Invalid login credentials')) {
+          errorMessage = 'メールアドレスまたはパスワードが正しくありません。'
+        } else if (errorMessage.includes('Email not confirmed')) {
+          errorMessage = 'メールアドレスが確認されていません。確認メールをチェックしてください。'
+        } else if (errorMessage.includes('Password should be at least')) {
+          errorMessage = 'パスワードは6文字以上で入力してください。'
+        } else if (errorMessage.includes('Invalid email')) {
+          errorMessage = '有効なメールアドレスを入力してください。'
+        }
+        
+        // ログイン試行カウンターが更新されていない場合（サインアップエラーなど）
+        if (!error.message.includes('Invalid login credentials')) {
+          setError(errorMessage)
+        }
+      } else {
+        // サインアップのエラー処理
+        let errorMessage = error.message
+        
+        if (errorMessage.includes('Password should be at least')) {
+          errorMessage = 'パスワードは6文字以上で入力してください。'
+        } else if (errorMessage.includes('Invalid email')) {
+          errorMessage = '有効なメールアドレスを入力してください。'
+        }
+        
+        setError(errorMessage)
       }
-      
-      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -128,13 +281,16 @@ export default function AuthForm() {
               </Alert>
             )}
 
+
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isLoading}
+              disabled={isLoading || isLocked}
             >
               {isLoading 
                 ? '処理中...' 
+                : isLocked
+                  ? `ロック中 (${formatRemainingTime(remainingTime)})`
                 : isSignUp 
                   ? 'アカウント作成' 
                   : 'ログイン'
@@ -148,6 +304,7 @@ export default function AuthForm() {
                   setIsSignUp(!isSignUp)
                   setError('')
                   setMessage('')
+                  // ロック状態でもフォーム切り替えは可能
                 }}
                 className="text-sm text-blue-600 hover:text-blue-500"
                 disabled={isLoading}

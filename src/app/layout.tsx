@@ -129,7 +129,7 @@ export default function RootLayout({
                   </nav>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">{user.email}</span>
-                    <Button variant="outline" size="sm" onClick={signOut}>
+                    <Button variant="outline" size="sm" onClick={() => signOut(false)}>
                       ログアウト
                     </Button>
                   </div>
@@ -142,7 +142,7 @@ export default function RootLayout({
                   <h1 className="text-lg font-semibold text-gray-900">
                     レシートOCR
                   </h1>
-                  <Button variant="outline" size="sm" onClick={signOut}>
+                  <Button variant="outline" size="sm" onClick={() => signOut(false)}>
                     ログアウト
                   </Button>
                 </div>
@@ -171,7 +171,7 @@ export default function RootLayout({
                   <h1 className="text-lg font-semibold text-gray-900">
                     レシートOCR
                   </h1>
-                  <Button variant="outline" size="sm" onClick={signOut}>
+                  <Button variant="outline" size="sm" onClick={() => signOut(false)}>
                     ログアウト
                   </Button>
                 </div>
@@ -219,7 +219,7 @@ export default function RootLayout({
                   セッション延長
                 </button>
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => signOut(false)}
                   className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors"
                 >
                   ログアウト

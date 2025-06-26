@@ -27,12 +27,15 @@ export function useAuth() {
     
     setSessionWarning(false)
     
+    await supabase.auth.signOut()
+    
     if (isAutoLogout) {
       // 自動ログアウトの場合は通知を表示
       alert('セッションが15分間非アクティブだったため、自動的にログアウトしました。')
+    } else {
+      // 手動ログアウトの場合は通知を表示
+      alert('ログアウトしました。')
     }
-    
-    await supabase.auth.signOut()
   }, [])
 
   // セッションタイムアウトとログアウト警告を管理
@@ -67,8 +70,7 @@ export function useAuth() {
       }
       
       setSessionWarning(false)
-      alert('セッションが15分間非アクティブだったため、自動的にログアウトしました。')
-      await supabase.auth.signOut()
+      await signOut(true)
     }, SESSION_TIMEOUT)
   }, [signOut])
 
