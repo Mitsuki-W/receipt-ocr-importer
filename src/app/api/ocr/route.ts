@@ -1,20 +1,9 @@
 // app/api/ocr/route.ts
 
 import { NextRequest, NextResponse } from 'next/server'
-import { ImageAnnotatorClient } from '@google-cloud/vision'
-import sharp from 'sharp'
-import { parseReceiptTextUniversal } from '@/lib/improvedIntelligentParser'
+import { EnhancedOCRService } from '@/lib/ocr/enhanced-ocr-service'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-
-// Google Cloud Vision クライアントの初期化
-const visionClient = new ImageAnnotatorClient({
-  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-  credentials: {
-    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  },
-})
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,57 +22,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ファイルが見つかりません' }, { status: 400 })
     }
 
-    // ファイルをBufferに変換
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
+    // 拡張OCRサービスを使用
+    const enhancedOCR = new EnhancedOCRService()
+    
+    // パターンマッチングオプション設定
+    const options = {
+      enablePatternMatching: true,
+      maxProcessingTime: 10000,
+      confidenceThreshold: 0.3,
+      enableFallback: true,
+      debugMode: process.env.NODE_ENV === 'development'
+    }
 
-    // 画像を最適化（サイズ縮小・品質向上）
-    const optimizedBuffer = await sharp(buffer)
-      .resize(1200, 1200, { 
-        fit: 'inside',
-        withoutEnlargement: true 
-      })
-      .jpeg({ quality: 85 })
-      .sharpen()
-      .toBuffer()
+    const result = await enhancedOCR.processImage(file, options)
 
-    // Google Cloud Vision APIでOCR実行
-    const [result] = await visionClient.textDetection({
-      image: { content: optimizedBuffer }
-    })
-
-    const detections = result.textAnnotations
-    const extractedText = detections?.[0]?.description || ''
-
-    if (!extractedText) {
+    if (!result.success) {
       return NextResponse.json({ 
-        error: 'テキストを検出できませんでした' 
+        error: 'OCR処理に失敗しました' 
       }, { status: 400 })
     }
 
-    // 汎用レシートパーサーを使用してアイテムを抽出
-    const items = parseReceiptTextUniversal(extractedText)
-
     // デバッグ用ログ
-    console.log('=== OCR デバッグ情報 ===')
-    console.log('抽出されたテキスト:')
-    console.log(extractedText)
-    console.log('\n解析された商品:')
-    console.log(JSON.stringify(items, null, 2))
-    console.log('===================')
+    if (options.debugMode) {
+      console.log('=== 拡張OCR デバッグ情報 ===')
+      console.log('抽出されたテキスト:')
+      console.log(result.extractedText)
+      console.log('\n解析された商品:')
+      console.log(JSON.stringify(result.items, null, 2))
+      console.log('\nメタデータ:')
+      console.log(JSON.stringify(result.metadata, null, 2))
+      console.log('=========================')
+    }
 
     return NextResponse.json({
       success: true,
-      extractedText,
-      items,
+      extractedText: result.extractedText,
+      items: result.items,
+      metadata: result.metadata,
       debug: {
-        textLines: extractedText.split('\n').length,
-        itemsFound: items.length
+        textLines: result.extractedText.split('\n').length,
+        itemsFound: result.items.length,
+        storeDetected: result.metadata?.storeType,
+        patternUsed: result.metadata?.patternUsed,
+        confidence: result.metadata?.confidence,
+        processingTime: result.metadata?.processingTime
       }
     })
 
   } catch (error: unknown) {
-    console.error('OCR エラー:', error)
+    console.error('拡張OCR エラー:', error)
     return NextResponse.json({ 
       error: 'OCR処理中にエラーが発生しました: ' + (error instanceof Error ? error.message : '不明なエラー')
     }, { status: 500 })

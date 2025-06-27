@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import NavLink from './nav-link'
-import { Home, Upload, Package, History } from 'lucide-react'
+import { Home, Upload, Package, History, Settings } from 'lucide-react'
 
 interface DesktopHeaderProps {
   pathname: string
@@ -40,6 +40,9 @@ export default function DesktopHeader({
           </NavLink>
           <NavLink href="/history" pathname={pathname} icon={History}>
             履歴
+          </NavLink>
+          <NavLink href="/settings" pathname={pathname} icon={Settings}>
+            設定
           </NavLink>
         </nav>
         
