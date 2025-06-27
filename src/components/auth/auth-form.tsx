@@ -192,7 +192,7 @@ export default function AuthForm() {
         }
         // ログイン成功時の処理
         handleLoginSuccess()
-        window.location.reload()
+        window.location.href = '/'
       }
     } catch (error: any) {
       // サインアップの場合はログイン試行カウンターを増やさない
