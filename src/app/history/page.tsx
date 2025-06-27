@@ -25,12 +25,6 @@ export default function HistoryPage() {
     availableCategories
   } = useHistoryFilter(items)
 
-  useEffect(() => {
-    if (user) {
-      fetchHistoryItems()
-    }
-  }, [user, fetchHistoryItems])
-
   const fetchHistoryItems = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -49,6 +43,12 @@ export default function HistoryPage() {
       setLoading(false)
     }
   }, [user])
+
+  useEffect(() => {
+    if (user) {
+      fetchHistoryItems()
+    }
+  }, [user, fetchHistoryItems])
 
   if (loading) {
     return <div className="text-center">読み込み中...</div>

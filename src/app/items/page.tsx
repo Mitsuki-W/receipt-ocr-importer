@@ -42,12 +42,6 @@ export default function ItemsPage() {
     sortBy: filters.sortBy
   })
 
-  useEffect(() => {
-    if (user) {
-      fetchItems()
-    }
-  }, [user, fetchItems])
-
   const fetchItems = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -65,8 +59,11 @@ export default function ItemsPage() {
     }
   }, [user, setFrozenOrder])
 
-
-
+  useEffect(() => {
+    if (user) {
+      fetchItems()
+    }
+  }, [user, fetchItems])
 
   const handleAddSuccess = () => {
     setShowAddForm(false)
