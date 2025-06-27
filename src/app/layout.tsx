@@ -46,8 +46,8 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50">
-          <header className="bg-white shadow-sm border-b">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
+          <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/60 sticky top-0 z-40">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <DesktopHeader
                 pathname={pathname}

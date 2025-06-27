@@ -44,38 +44,50 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  
+  /* 落ち着いた清廉なカラーパレット - slate base */
+  --background: oklch(0.98 0.003 247.858); /* slate-50 */
+  --foreground: oklch(0.278 0.029 256.848); /* slate-700 */
+  
+  /* Card - より優雅で清潔感のあるデザイン */
+  --card: oklch(0.994 0.001 247.858); /* white with subtle slate tint */
+  --card-foreground: oklch(0.278 0.029 256.848); /* slate-700 */
+  
+  /* Popover */
+  --popover: oklch(0.994 0.001 247.858);
+  --popover-foreground: oklch(0.278 0.029 256.848);
+  
+  /* Primary - 品のあるティール */
+  --primary: oklch(0.549 0.155 180.108); /* teal-600 */
+  --primary-foreground: oklch(0.99 0.005 180.108);
+  
+  /* Secondary - 落ち着いたグレー */
+  --secondary: oklch(0.932 0.013 247.858); /* slate-100 */
+  --secondary-foreground: oklch(0.334 0.035 256.848); /* slate-600 */
+  
+  /* Muted */
+  --muted: oklch(0.932 0.013 247.858); /* slate-100 */
+  --muted-foreground: oklch(0.437 0.024 256.848); /* slate-500 */
+  
+  /* Accent - 優雅なティール */
+  --accent: oklch(0.855 0.046 180.108); /* teal-100 */
+  --accent-foreground: oklch(0.293 0.091 180.108); /* teal-800 */
+  
+  /* Destructive */
+  --destructive: oklch(0.577 0.245 27.325); /* red-600 */
+  
+  /* Border & Input - より繊細な境界線 */
+  --border: oklch(0.871 0.018 247.858); /* slate-200 */
+  --input: oklch(0.871 0.018 247.858); /* slate-200 */
+  --ring: oklch(0.549 0.155 180.108); /* teal-600 focus ring */
+  
+  /* Charts - 調和のとれたカラーパレット */
+  --chart-1: oklch(0.549 0.155 180.108); /* teal */
+  --chart-2: oklch(0.627 0.155 212.463); /* blue */
+  --chart-3: oklch(0.681 0.162 142.499); /* green */
+  --chart-4: oklch(0.688 0.199 83.896);  /* amber */
+  --chart-5: oklch(0.646 0.222 41.116);  /* orange */
 }
 
 .dark {
@@ -116,7 +128,96 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 text-foreground;
+    font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+
+  /* タイポグラフィの改善 */
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-slate-800 font-semibold tracking-tight;
+    line-height: 1.2;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+
+  p {
+    line-height: 1.6;
+    @apply text-slate-600;
+  }
+
+  /* スクロールバーの美化 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
+  }
+}
+
+/* カスタムコンポーネントスタイル */
+@layer components {
+  /* 洗練されたカードスタイル */
+  .card-elegant {
+    @apply bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  /* 優雅なボタンスタイル */
+  .btn-elegant {
+    @apply relative overflow-hidden bg-gradient-to-r from-teal-600 to-teal-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:from-teal-700 hover:to-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
+  }
+
+  .btn-elegant-secondary {
+    @apply bg-slate-100 text-slate-700 font-medium px-6 py-2.5 rounded-lg border border-slate-200 hover:bg-slate-200 hover:border-slate-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2;
+  }
+
+  /* フォーカス状態の改善 */
+  .input-elegant {
+    @apply bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all duration-200;
+  }
+
+  /* ナビゲーションリンクの改善 */
+  .nav-link-elegant {
+    @apply relative px-4 py-2.5 rounded-lg text-slate-600 hover:text-slate-800 hover:bg-slate-100/80 transition-all duration-200 font-medium;
+  }
+
+  .nav-link-elegant.active {
+    @apply text-teal-700 bg-teal-50/80 border border-teal-200/60;
+  }
+
+  /* アニメーション付きローダー */
+  .loading-elegant {
+    @apply animate-pulse bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%];
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }

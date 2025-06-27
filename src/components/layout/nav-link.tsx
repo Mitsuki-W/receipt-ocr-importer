@@ -23,14 +23,17 @@ export default function NavLink({
     return (
       <Link
         href={href}
-        className={`flex flex-col items-center gap-1 px-2 py-2 rounded-md text-xs font-medium transition-colors ${
+        className={`relative flex flex-col items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
           isActive
-            ? 'bg-blue-100 text-blue-700'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            ? 'text-teal-700 bg-teal-50/80 border border-teal-200/60 shadow-sm'
+            : 'text-slate-600 hover:text-slate-800 hover:bg-white/70 hover:shadow-sm'
         }`}
       >
-        <Icon className="h-5 w-5" />
-        <span className="text-center">{children}</span>
+        <Icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+        <span className="text-center leading-tight">{children}</span>
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-teal-100/50 rounded-xl -z-10" />
+        )}
       </Link>
     )
   }
@@ -39,14 +42,17 @@ export default function NavLink({
     return (
       <Link
         href={href}
-        className={`flex flex-col items-center gap-1 px-3 py-3 rounded-md text-sm font-medium transition-colors ${
+        className={`relative flex flex-col items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
           isActive
-            ? 'bg-blue-100 text-blue-700'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            ? 'text-teal-700 bg-teal-50/80 border border-teal-200/60 shadow-sm'
+            : 'text-slate-600 hover:text-slate-800 hover:bg-white/70 hover:shadow-sm'
         }`}
       >
-        <Icon className="h-6 w-6" />
-        <span className="text-center">{children}</span>
+        <Icon className={`h-6 w-6 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
+        <span className="text-center leading-tight">{children}</span>
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-teal-100/50 rounded-xl -z-10" />
+        )}
       </Link>
     )
   }
@@ -54,14 +60,17 @@ export default function NavLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+      className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
         isActive
-          ? 'bg-blue-100 text-blue-700'
-          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+          ? 'text-teal-700 bg-teal-50/80 border border-teal-200/60 shadow-sm'
+          : 'text-slate-600 hover:text-slate-800 hover:bg-white/70 hover:shadow-sm'
       }`}
     >
-      <Icon className="h-4 w-4" />
-      {children}
+      <Icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-105'}`} />
+      <span className="leading-tight">{children}</span>
+      {isActive && (
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-50 to-teal-100/50 rounded-xl -z-10" />
+      )}
     </Link>
   )
 }

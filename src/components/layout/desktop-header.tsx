@@ -14,12 +14,21 @@ export default function DesktopHeader({
   onSignOut 
 }: DesktopHeaderProps) {
   return (
-    <div className="hidden lg:flex justify-between items-center h-16">
-      <h1 className="text-xl font-semibold text-gray-900">
-        レシートOCRインポーター
-      </h1>
-      <div className="flex items-center space-x-4">
-        <nav className="flex space-x-1">
+    <div className="hidden lg:flex justify-between items-center h-18 py-4">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center shadow-sm">
+          <Package className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+            レシートOCRインポーター
+          </h1>
+          <p className="text-sm text-slate-500 leading-none">食材管理システム</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-6">
+        <nav className="flex items-center gap-2 bg-white/60 backdrop-blur-sm rounded-xl p-1.5 border border-slate-200/60 shadow-sm">
           <NavLink href="/" pathname={pathname} icon={Home}>
             ダッシュボード
           </NavLink>
@@ -33,9 +42,18 @@ export default function DesktopHeader({
             履歴
           </NavLink>
         </nav>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">{userEmail}</span>
-          <Button variant="outline" size="sm" onClick={onSignOut}>
+        
+        <div className="flex items-center gap-3 pl-6 border-l border-slate-200">
+          <div className="text-right">
+            <div className="text-sm font-medium text-slate-700">{userEmail}</div>
+            <div className="text-xs text-slate-500">ユーザー</div>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onSignOut}
+            className="bg-white/80 border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-medium transition-all duration-200"
+          >
             ログアウト
           </Button>
         </div>
