@@ -90,7 +90,7 @@ export default function ItemsPage() {
 
   // ソート変更ハンドラー
   const handleSortChange = (sortOption: string) => {
-    updateFilter('sortBy', sortOption)
+    updateFilter('sortBy', sortOption as any) // 一時的にanyでキャスト
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 

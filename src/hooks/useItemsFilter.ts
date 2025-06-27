@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Item, FilterState, SortOption, ConsumptionFilter } from '@/types/item'
+import { Item, FilterState, ConsumptionFilter } from '@/types/item'
+import type { SortOption } from '@/constants/itemConstants'
 import { filterItems } from '@/utils/itemFilter'
 import { sortItems } from '@/utils/itemSort'
 

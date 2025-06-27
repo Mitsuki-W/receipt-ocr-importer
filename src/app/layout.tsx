@@ -1,6 +1,6 @@
 'use client'
 
-import type { Metadata } from 'next'
+// import type { Metadata } from 'next' // 現在未使用
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { useAuth } from '@/hooks/useAuth'

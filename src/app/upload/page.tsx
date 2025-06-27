@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/hooks/useAuth'
-import { Upload, Loader2, Check, X, Camera, Progress } from 'lucide-react'
+import { Upload, Loader2, Check, X, Camera } from 'lucide-react'
 import NextImage from 'next/image'
 import CameraCapture from '@/components/camera/camera-capture'
 
