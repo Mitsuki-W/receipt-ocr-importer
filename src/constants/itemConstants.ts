@@ -45,12 +45,10 @@ export const EXPIRY_WARNING_DAYS = {
 
 // ソート順序
 export const SORT_OPTIONS = {
-  NAME_ASC: 'name_asc',
-  NAME_DESC: 'name_desc',
-  DATE_ASC: 'date_asc', 
-  DATE_DESC: 'date_desc',
-  EXPIRY_ASC: 'expiry_asc',
-  EXPIRY_DESC: 'expiry_desc',
+  NEWEST: 'newest',
+  OLDEST: 'oldest',
+  NAME: 'name',
+  EXPIRY: 'expiry',
 } as const
 
 // 食材型定義

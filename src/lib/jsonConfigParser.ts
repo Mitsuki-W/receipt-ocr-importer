@@ -49,7 +49,7 @@ export interface JsonPatternExtraction {
 
 export interface JsonPatternValidation {
   name_must_contain?: string
-  [key: string]: any
+  [key: string]: unknown // any型をunknown型に変更
 }
 
 export interface JsonSpecialCase {
@@ -81,7 +81,8 @@ export class JsonConfigReceiptParser {
   private config: JsonConfigFile
   private categoryMap: Map<string, string[]>
   
-  constructor(configPath?: string) {
+  constructor() {
+    // configPath パラメータは現在未使用（将来のJSON読み込み用）
     // デフォルト設定、実際のプロジェクトではJSONファイルから読み込み
     this.config = this.getDefaultConfig()
     this.categoryMap = new Map(Object.entries(this.config.categories))
@@ -291,7 +292,7 @@ export class JsonConfigReceiptParser {
     for (let i = 0; i < lines.length; i++) {
       if (usedLines.has(i)) continue
       
-      const line = lines[i]
+      // const line = lines[i] // 現在未使用
       
       for (const pattern of storeConfig.patterns) {
         const item = this.parseSingleLinePattern(pattern, lines, i)

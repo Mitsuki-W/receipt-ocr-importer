@@ -85,9 +85,10 @@ export default function ItemsPage() {
     // fetchItems()は呼ばない - useItemOperations内でローカル状態更新済み
   }
 
-  // ソート変更ハンドラー
+  // ソート変更ハンドラー  
   const handleSortChange = (sortOption: string) => {
-    updateFilter('sortBy', sortOption as 'newest' | 'oldest' | 'name' | 'expiry') 
+    // 型の不整合のため一時的にas anyを使用（要リファクタリング）
+    updateFilter('sortBy', sortOption as any)
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 

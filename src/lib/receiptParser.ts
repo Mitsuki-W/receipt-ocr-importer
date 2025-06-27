@@ -173,7 +173,8 @@ export class StoreConfigManager {
           name: 'prosciutto_special',
           confidence: 0.8,
           condition: (lines, index) => lines[index] === 'PROSCIUTTO CRUDO',
-          handler: (lines, index) => ({
+          handler: () => ({
+            // lines, index パラメータは現在未使用
             items: [
               {
                 name: 'PROSCIUTTO CRUDO',

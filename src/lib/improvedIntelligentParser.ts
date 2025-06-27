@@ -153,7 +153,7 @@ export class UniversalReceiptParser {
     const lineAnalyses = this.analyzeAllLines(lines)
     const receiptFormat = this.detectReceiptFormat(lineAnalyses)
     const items = this.extractItemsByFormat(lineAnalyses, receiptFormat)
-    const finalItems = this.finalValidation(items, lineAnalyses)
+    const finalItems = this.finalValidation(items)
     
     return finalItems
   }
@@ -161,7 +161,7 @@ export class UniversalReceiptParser {
   private analyzeAllLines(lines: string[]): LineAnalysis[] {
     return lines.map((line, index) => {
       const features = this.extractDetailedFeatures(line, index, lines.length)
-      const type = this.classifyLineAccurately(line, features, index, lines)
+      const type = this.classifyLineAccurately(line, features)
       const confidence = this.calculateAccurateConfidence(line, features, type)
       
       return {
@@ -278,7 +278,8 @@ export class UniversalReceiptParser {
     }
   }
   
-  private classifyLineAccurately(line: string, features: LineFeatures, index: number, allLines: string[]): LineType {
+  private classifyLineAccurately(line: string, features: LineFeatures): LineType {
+    // index, allLines は現在未使用
     if (features.matchesExcludeKeywords) {
       return LineType.STORE_INFO
     }
@@ -732,7 +733,8 @@ export class UniversalReceiptParser {
     return null
   }
   
-  private finalValidation(items: ParsedItem[], analyses: LineAnalysis[]): ParsedItem[] {
+  private finalValidation(items: ParsedItem[]): ParsedItem[] {
+    // analyses パラメータは現在未使用
     let validated = items.filter(item => {
       // 商品名の妥当性チェック
       if (!this.isValidItemName(item.name)) {

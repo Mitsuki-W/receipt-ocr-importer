@@ -176,7 +176,7 @@ export class IntelligentReceiptParser {
     const candidates = this.findItemCandidates(lineAnalyses)
     
     // Step 3: 文脈分析とフィルタリング
-    const contextFiltered = this.contextualFiltering(candidates, lineAnalyses)
+    const contextFiltered = this.contextualFiltering(candidates)
     
     // Step 4: 重複除去と最終検証
     const finalItems = this.finalValidation(contextFiltered)
@@ -190,7 +190,7 @@ export class IntelligentReceiptParser {
     return lines.map((line, index) => {
       const features = this.extractFeatures(line, index, lines.length)
       const type = this.classifyLine(line, features)
-      const confidence = this.calculateLineConfidence(line, features, type)
+      const confidence = this.calculateLineConfidence(line, features)
       
       return {
         index,
@@ -286,7 +286,8 @@ export class IntelligentReceiptParser {
     return LineType.UNKNOWN
   }
   
-  private calculateLineConfidence(line: string, features: LineFeatures, type: LineType): number {
+  private calculateLineConfidence(line: string, features: LineFeatures): number {
+    // type パラメータは現在未使用
     let confidence = 0.5 // ベーススコア
     
     // 食品キーワードの重み
@@ -528,7 +529,8 @@ export class IntelligentReceiptParser {
     return null
   }
   
-  private contextualFiltering(candidates: ParsedItem[], lineAnalyses: LineAnalysis[]): ParsedItem[] {
+  private contextualFiltering(candidates: ParsedItem[]): ParsedItem[] {
+    // lineAnalyses パラメータは現在未使用
     // 信頼度による初期フィルタリング
     let filtered = candidates.filter(item => item.confidence >= 0.4)
     
@@ -539,7 +541,7 @@ export class IntelligentReceiptParser {
     filtered = this.validateItemNames(filtered)
     
     // 文脈的妥当性チェック
-    filtered = this.validateContext(filtered, lineAnalyses)
+    filtered = this.validateContext(filtered)
     
     return filtered
   }
@@ -603,7 +605,8 @@ export class IntelligentReceiptParser {
     })
   }
   
-  private validateContext(items: ParsedItem[], lineAnalyses: LineAnalysis[]): ParsedItem[] {
+  private validateContext(items: ParsedItem[]): ParsedItem[] {
+    // lineAnalyses パラメータは現在未使用
     // 商品数の妥当性チェック（レシートに100個以上の商品は稀）
     if (items.length > 100) {
       console.log(`商品数が多すぎます (${items.length}個)。信頼度でフィルタリングします。`)
@@ -750,7 +753,8 @@ export class IntelligentReceiptParser {
 export class LearningReceiptParser extends IntelligentReceiptParser {
   private learningData: Map<string, number> = new Map()
   
-  learn(correctItems: ParsedItem[], actualText: string) {
+  learn(correctItems: ParsedItem[]) {
+    // actualText パラメータは現在未使用
     // 正解データから学習（将来の機械学習実装用）
     console.log('学習データを記録中...', correctItems.length, '個のアイテム')
     
