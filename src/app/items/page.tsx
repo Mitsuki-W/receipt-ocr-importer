@@ -87,8 +87,12 @@ export default function ItemsPage() {
 
   // ソート変更ハンドラー  
   const handleSortChange = (sortOption: string) => {
-    // 型の不整合のため一時的にas anyを使用（要リファクタリング）
-    updateFilter('sortBy', sortOption as any)
+    // 型安全なソートオプション変換
+    const validSortOptions = ['newest', 'oldest', 'name', 'expiry'] as const
+    const typedSortOption = validSortOptions.includes(sortOption as typeof validSortOptions[number]) 
+      ? sortOption as typeof validSortOptions[number]
+      : 'newest'
+    updateFilter('sortBy', typedSortOption)
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 
