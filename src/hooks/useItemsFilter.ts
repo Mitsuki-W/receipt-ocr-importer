@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { Item, FilterState } from '@/types/item'
-// import type { SortOption, ConsumptionFilter } from '@/constants/itemConstants'
+import { CATEGORIES } from '@/constants/itemConstants'
 import { filterItems } from '@/utils/itemFilter'
 import { sortItems } from '@/utils/itemSort'
 
@@ -44,18 +44,8 @@ export function useItemsFilter(items: Item[]) {
   const availableCategories = useMemo(() => {
     const uniqueCategories = [...new Set(items.map(item => item.category))]
     
-    // 指定された順序
-    const categoryOrder = [
-      '野菜',
-      '肉類', 
-      '乳製品',
-      '果物',
-      'パン・穀物',
-      '調味料',
-      '飲料',
-      'お菓子',
-      'その他'
-    ]
+    // itemConstants.tsで定義された順序を使用
+    const categoryOrder = [...CATEGORIES]
     
     // 指定順序に従ってソート、存在しないカテゴリは末尾に追加
     const sortedCategories = categoryOrder.filter(cat => uniqueCategories.includes(cat))

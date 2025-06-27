@@ -122,6 +122,15 @@ export function useUpload(): UploadHookReturn {
     }
   }, [file, compressImage])
 
+  const resetUpload = useCallback(() => {
+    setFile(null)
+    setPreview(null)
+    setOcrResult(null)
+    setSelectedItems(new Set())
+    setError('')
+    setProgress(0)
+  }, [])
+
   const toggleItemSelection = useCallback((index: number) => {
     const newSelected = new Set(selectedItems)
     if (newSelected.has(index)) {
@@ -168,15 +177,6 @@ export function useUpload(): UploadHookReturn {
       setLoading(false)
     }
   }, [ocrResult, user, selectedItems, resetUpload])
-
-  const resetUpload = useCallback(() => {
-    setFile(null)
-    setPreview(null)
-    setOcrResult(null)
-    setSelectedItems(new Set())
-    setError('')
-    setProgress(0)
-  }, [])
 
   return {
     file,

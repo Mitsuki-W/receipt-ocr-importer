@@ -38,14 +38,6 @@ export default function UploadMethodSelector({
             <span>カメラで撮影</span>
           </Button>
         </div>
-        
-        {/* 隠しファイル入力 */}
-        <input
-          id="file-input"
-          type="file"
-          className="hidden"
-          accept="image/*"
-        />
       </CardContent>
     </Card>
   )
