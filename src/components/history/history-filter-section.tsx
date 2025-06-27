@@ -18,7 +18,7 @@ export default function HistoryFilterSection({
   updateFilter,
   availableCategories,
   filteredItemsCount,
-  onClearFilters
+  // onClearFilters
 }: HistoryFilterSectionProps) {
   const hasActiveFilters = filters.searchQuery || 
     filters.categoryFilter !== 'all' || 

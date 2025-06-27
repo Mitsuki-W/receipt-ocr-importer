@@ -69,7 +69,7 @@ export default function AuthForm() {
       setLockoutEndTime(null)
       setError('')
     }
-  }, [email])
+  }, [email, lockoutEndTime])
 
   // 残り時間のカウントダウン
   useEffect(() => {
@@ -194,11 +194,11 @@ export default function AuthForm() {
         handleLoginSuccess()
         window.location.href = '/'
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // サインアップの場合はログイン試行カウンターを増やさない
       if (!isSignUp) {
         // その他のエラーメッセージを適切に変換
-        let errorMessage = error.message
+        let errorMessage = error instanceof Error ? error.message : 'エラーが発生しました'
         
         if (errorMessage.includes('Invalid login credentials')) {
           errorMessage = 'メールアドレスまたはパスワードが正しくありません。'
@@ -211,12 +211,12 @@ export default function AuthForm() {
         }
         
         // ログイン試行カウンターが更新されていない場合（サインアップエラーなど）
-        if (!error.message.includes('Invalid login credentials')) {
+        if (!(error instanceof Error && error.message.includes('Invalid login credentials'))) {
           setError(errorMessage)
         }
       } else {
         // サインアップのエラー処理
-        let errorMessage = error.message
+        let errorMessage = error instanceof Error ? error.message : 'エラーが発生しました'
         
         if (errorMessage.includes('Password should be at least')) {
           errorMessage = 'パスワードは6文字以上で入力してください。'

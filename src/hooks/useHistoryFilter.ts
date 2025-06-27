@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { HistoryItem, HistoryFilterState, HistorySortOption, HistoryPeriodFilter } from '@/types/history'
+import { HistoryItem, HistoryFilterState } from '@/types/history'
+// import { HistorySortOption, HistoryPeriodFilter } from '@/types/history' // 現在未使用
 
 export function useHistoryFilter(items: HistoryItem[]) {
   const [filters, setFilters] = useState<HistoryFilterState>({

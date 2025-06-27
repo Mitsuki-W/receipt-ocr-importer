@@ -82,10 +82,10 @@ export async function POST(request: NextRequest) {
       }
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('OCR エラー:', error)
     return NextResponse.json({ 
-      error: 'OCR処理中にエラーが発生しました: ' + error.message 
+      error: 'OCR処理中にエラーが発生しました: ' + (error instanceof Error ? error.message : '不明なエラー')
     }, { status: 500 })
   }
 }

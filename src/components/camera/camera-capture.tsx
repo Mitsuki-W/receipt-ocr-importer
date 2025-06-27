@@ -32,7 +32,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
             height: { ideal: 1080 }
           }
         })
-      } catch (err) {
+      } catch {
         // 背面カメラが利用できない場合（PC等）は通常のカメラを使用
         console.log('背面カメラが利用できません。フロントカメラを使用します。')
         stream = await navigator.mediaDevices.getUserMedia({

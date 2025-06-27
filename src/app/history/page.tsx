@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -29,9 +29,9 @@ export default function HistoryPage() {
     if (user) {
       fetchHistoryItems()
     }
-  }, [user])
+  }, [user, fetchHistoryItems])
 
-  const fetchHistoryItems = async () => {
+  const fetchHistoryItems = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('items')
@@ -48,7 +48,7 @@ export default function HistoryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   if (loading) {
     return <div className="text-center">読み込み中...</div>

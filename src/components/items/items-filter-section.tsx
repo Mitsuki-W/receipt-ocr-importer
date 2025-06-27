@@ -2,7 +2,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
 import { ArrowUpDown, Search, Filter, X } from 'lucide-react'
 import { FilterState, ConsumptionFilter } from '@/types/item'
 
@@ -12,7 +11,7 @@ interface ItemsFilterSectionProps {
   availableCategories: string[]
   filteredItemsCount: number
   onSortChange: (sortOption: string) => void
-  onClearFilters: () => void
+  // onClearFilters: () => void // 現在未使用
 }
 
 export default function ItemsFilterSection({
@@ -21,7 +20,7 @@ export default function ItemsFilterSection({
   availableCategories,
   filteredItemsCount,
   onSortChange,
-  onClearFilters
+  // onClearFilters
 }: ItemsFilterSectionProps) {
   const hasActiveFilters = filters.searchQuery || 
     filters.categoryFilter !== 'all' || 

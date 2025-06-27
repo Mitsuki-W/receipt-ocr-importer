@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -46,9 +46,9 @@ export default function ItemsPage() {
     if (user) {
       fetchItems()
     }
-  }, [user])
+  }, [user, fetchItems])
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('items')
@@ -63,7 +63,7 @@ export default function ItemsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, setFrozenOrder])
 
 
 
@@ -90,7 +90,7 @@ export default function ItemsPage() {
 
   // ソート変更ハンドラー
   const handleSortChange = (sortOption: string) => {
-    updateFilter('sortBy', sortOption as any) // 一時的にanyでキャスト
+    updateFilter('sortBy', sortOption as 'newest' | 'oldest' | 'name' | 'expiry') 
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 

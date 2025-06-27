@@ -81,7 +81,7 @@ export function useAuth() {
     const activities = ['keypress', 'touchstart', 'click']
     let lastActivityTime = 0
     
-    const handleActivity = (event: Event) => {
+    const handleActivity = () => {
       const now = Date.now()
       // 500ms以内の連続イベントは無視（デバウンス）
       if (now - lastActivityTime < 500) return

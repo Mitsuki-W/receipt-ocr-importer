@@ -94,10 +94,10 @@ export default function UploadPage() {
 
       setOcrResult(result)
       // 全ての項目をデフォルトで選択
-      setSelectedItems(new Set(result.items.map((_: any, index: number) => index)))
+      setSelectedItems(new Set(result.items.map((_: ExtractedItem, index: number) => index)))
 
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'エラーが発生しました')
     } finally {
       setLoading(false)
       setProgress(0)
@@ -189,8 +189,8 @@ export default function UploadPage() {
       
       alert(`${itemsToSave.length}個の食材を保存しました！`)
       
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'エラーが発生しました')
     } finally {
       setLoading(false)
     }

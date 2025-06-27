@@ -73,8 +73,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
       
       onSuccess()
       onOpenChange(false)
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'エラーが発生しました')
     } finally {
       setLoading(false)
     }
@@ -96,8 +96,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
       
       onSuccess()
       onOpenChange(false)
-    } catch (error: any) {
-      setError(error.message)
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : 'エラーが発生しました')
     } finally {
       setLoading(false)
     }

@@ -11,7 +11,8 @@ interface UseItemOperationsParams {
 }
 
 export function useItemOperations(params: UseItemOperationsParams) {
-  const { items, setItems, frozenOrder, setFrozenOrder, filteredAndSortedItems, sortBy } = params
+  const { items, setItems, setFrozenOrder, filteredAndSortedItems } = params
+  // frozenOrder, sortBy は現在未使用
 
   const toggleConsumption = async (
     itemId: string, 
