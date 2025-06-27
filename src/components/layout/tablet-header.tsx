@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import NavLink from './nav-link'
-import { Home, Upload, Package, History, Settings } from 'lucide-react'
+import { Home, Upload, Package, History } from 'lucide-react'
 
 interface TabletHeaderProps {
   pathname: string
@@ -17,9 +17,9 @@ export default function TabletHeader({ pathname, onSignOut }: TabletHeaderProps)
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-800 tracking-tight">
-              レシートOCR
+              レシート在庫管理
             </h1>
-            <p className="text-xs text-slate-500 leading-none">食材管理</p>
+            <p className="text-xs text-slate-500 leading-none">写真で食材管理</p>
           </div>
         </div>
         <Button 
@@ -34,7 +34,7 @@ export default function TabletHeader({ pathname, onSignOut }: TabletHeaderProps)
       
       {/* タブレットナビゲーション */}
       <div className="pb-4 border-t border-slate-200/60">
-        <nav className="grid grid-cols-5 gap-2 pt-4 bg-white/40 backdrop-blur-sm rounded-xl p-3 mx-2 border border-slate-200/60 shadow-sm">
+        <nav className="grid grid-cols-4 gap-3 pt-4 bg-white/40 backdrop-blur-sm rounded-xl p-3 mx-2 border border-slate-200/60 shadow-sm">
           <NavLink href="/" pathname={pathname} icon={Home} tablet>
             ダッシュボード
           </NavLink>
@@ -46,9 +46,6 @@ export default function TabletHeader({ pathname, onSignOut }: TabletHeaderProps)
           </NavLink>
           <NavLink href="/history" pathname={pathname} icon={History} tablet>
             履歴
-          </NavLink>
-          <NavLink href="/settings" pathname={pathname} icon={Settings} tablet>
-            設定
           </NavLink>
         </nav>
       </div>
