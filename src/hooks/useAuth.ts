@@ -3,9 +3,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase/client'
+import { SESSION_CONFIG } from '@/constants/appConstants'
 
-const SESSION_TIMEOUT = 15 * 60 * 1000 // 15分（ミリ秒）
-const WARNING_TIME = 5 * 60 * 1000 // 5分前に警告（ミリ秒）
+const { TIMEOUT: SESSION_TIMEOUT, WARNING_TIME } = SESSION_CONFIG
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)

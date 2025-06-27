@@ -8,17 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-
-interface Item {
-  id: string
-  name: string
-  category: string
-  quantity: number
-  unit: string
-  expiry_date: string | null
-  purchase_date: string | null
-  notes: string | null
-}
+import { CATEGORIES, UNITS } from '@/constants/itemConstants'
+import type { Item } from '@/types/item'
 
 interface EditItemDialogProps {
   item: Item | null
@@ -26,34 +17,6 @@ interface EditItemDialogProps {
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
 }
-
-const CATEGORIES = [
-  '野菜',
-  '果物',
-  '肉類',
-  '魚類',
-  '乳製品',
-  'パン・穀物',
-  '調味料',
-  '飲料',
-  'お菓子',
-  '冷凍食品',
-  '缶詰・瓶詰',
-  'その他'
-]
-
-const UNITS = [
-  '個',
-  'パック',
-  'g',
-  'kg',
-  'ml',
-  'L',
-  '本',
-  '袋',
-  '箱',
-  '枚'
-]
 
 export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: EditItemDialogProps) {
   const [loading, setLoading] = useState(false)

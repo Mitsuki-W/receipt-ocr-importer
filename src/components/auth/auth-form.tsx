@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AUTH_CONFIG, STORAGE_KEYS } from '@/constants/appConstants'
 
-const MAX_LOGIN_ATTEMPTS = 5
-const LOCKOUT_DURATION = 15 * 60 * 1000 // 15分
+const { MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION } = AUTH_CONFIG
 
 export default function AuthForm() {
   const [email, setEmail] = useState('')
@@ -35,8 +35,8 @@ export default function AuthForm() {
     }
 
     // メールアドレス別のロック情報を取得
-    const lockKey = `lockout_${email}`
-    const attemptsKey = `attempts_${email}`
+    const lockKey = STORAGE_KEYS.LOCKOUT_TIME(email)
+    const attemptsKey = STORAGE_KEYS.LOGIN_ATTEMPTS(email)
     
     const storedAttempts = localStorage.getItem(attemptsKey)
     const storedLockoutEnd = localStorage.getItem(lockKey)
@@ -87,8 +87,8 @@ export default function AuthForm() {
         setRemainingTime(0)
         setError('') // エラー文をクリア
         if (email) {
-          localStorage.removeItem(`attempts_${email}`)
-          localStorage.removeItem(`lockout_${email}`)
+          localStorage.removeItem(STORAGE_KEYS.LOGIN_ATTEMPTS(email))
+          localStorage.removeItem(STORAGE_KEYS.LOCKOUT_TIME(email))
         }
         clearInterval(interval)
       } else {
@@ -106,8 +106,8 @@ export default function AuthForm() {
     const newAttempts = loginAttempts + 1
     setLoginAttempts(newAttempts)
     
-    const attemptsKey = `attempts_${email}`
-    const lockKey = `lockout_${email}`
+    const attemptsKey = STORAGE_KEYS.LOGIN_ATTEMPTS(email)
+    const lockKey = STORAGE_KEYS.LOCKOUT_TIME(email)
     localStorage.setItem(attemptsKey, newAttempts.toString())
     
     if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -128,8 +128,8 @@ export default function AuthForm() {
     setLockoutEndTime(null)
     
     if (email) {
-      localStorage.removeItem(`attempts_${email}`)
-      localStorage.removeItem(`lockout_${email}`)
+      localStorage.removeItem(STORAGE_KEYS.LOGIN_ATTEMPTS(email))
+      localStorage.removeItem(STORAGE_KEYS.LOCKOUT_TIME(email))
     }
   }
 
