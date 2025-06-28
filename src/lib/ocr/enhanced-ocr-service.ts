@@ -90,9 +90,6 @@ export class EnhancedOCRService {
         parseResult.metadata.fallbackUsed = true
       }
 
-      // 結果の品質評価
-      const evaluation = PatternOptimizer.evaluateResults(parseResult)
-
       return {
         success: true,
         extractedText: ocrText,
@@ -102,10 +99,7 @@ export class EnhancedOCRService {
           storeType: parseResult.metadata.storeType,
           patternUsed: parseResult.patternId,
           confidence: parseResult.confidence,
-          fallbackUsed: parseResult.metadata.fallbackUsed,
-          quality: evaluation.quality,
-          issues: evaluation.issues,
-          suggestions: evaluation.suggestions
+          fallbackUsed: parseResult.metadata.fallbackUsed
         }
       }
 
@@ -127,7 +121,7 @@ export class EnhancedOCRService {
             confidence: 0.2
           }
         }
-      } catch (fallbackError) {
+      } catch {
         return {
           success: false,
           extractedText: '',
@@ -138,21 +132,45 @@ export class EnhancedOCRService {
   }
 
   private async performOCR(imageFile: File): Promise<string> {
-    // 既存のOCR APIを呼び出し
-    const formData = new FormData()
-    formData.append('image', imageFile)
-
-    const response = await fetch('/api/ocr/extract-text', {
-      method: 'POST',
-      body: formData
+    // Google Cloud Vision APIを直接呼び出し
+    const { ImageAnnotatorClient } = await import('@google-cloud/vision')
+    const sharp = await import('sharp')
+    
+    const visionClient = new ImageAnnotatorClient({
+      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+      credentials: {
+        client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+        private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      },
     })
 
-    if (!response.ok) {
-      throw new Error(`OCR API failed: ${response.statusText}`)
+    // ファイルをBufferに変換
+    const bytes = await imageFile.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+
+    // 画像を最適化（サイズ縮小・品質向上）
+    const optimizedBuffer = await sharp.default(buffer)
+      .resize(1200, 1200, { 
+        fit: 'inside',
+        withoutEnlargement: true 
+      })
+      .jpeg({ quality: 85 })
+      .sharpen()
+      .toBuffer()
+
+    // Google Cloud Vision APIでOCR実行
+    const [result] = await visionClient.textDetection({
+      image: { content: optimizedBuffer }
+    })
+
+    const detections = result.textAnnotations
+    const extractedText = detections?.[0]?.description || ''
+
+    if (!extractedText) {
+      throw new Error('テキストを検出できませんでした')
     }
 
-    const result = await response.json()
-    return result.text || ''
+    return extractedText
   }
 
   private async fallbackParsing(text: string): Promise<OCRParseResult> {
@@ -194,11 +212,10 @@ export class EnhancedOCRService {
     }
   }
 
-  private convertToExtractedItem(item: ExtractedItem): any {
+  private convertToExtractedItem(item: ExtractedItem): ExtractedItem {
     // 既存のインターフェースに合わせて変換
     return {
-      name: item.name,
-      price: item.price,
+      ...item,
       quantity: item.quantity || 1,
       category: item.category || 'その他'
     }
@@ -213,7 +230,7 @@ export class EnhancedOCRService {
   async getDebugInfo(text: string): Promise<{
     detectedStore: string | null
     availablePatterns: number
-    patternStats: any
+    patternStats: Record<string, unknown>
   }> {
     const storeType = await this.processor.detectStoreType(text)
     const patterns = await this.patternManager.getOptimalPatterns(storeType || undefined)

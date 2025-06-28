@@ -128,7 +128,7 @@ export class PatternOptimizer {
       
       // 異常に高い/低い価格をチェック
       const price = item.price
-      let normalizedPrice = price
+      const normalizedPrice = price
       let confidence = item.confidence
       
       // 異常値検出

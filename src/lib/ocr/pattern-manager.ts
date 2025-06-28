@@ -1,5 +1,5 @@
 import { PatternManager, OCRPatternConfig, OCRParseResult } from '@/types/ocr-patterns'
-import { DEFAULT_PATTERNS, STORE_PATTERNS } from './pattern-configs'
+import { DEFAULT_PATTERNS } from './pattern-configs'
 import { AdvancedPatternProcessor } from './pattern-processor'
 
 export class OCRPatternManager implements PatternManager {

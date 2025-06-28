@@ -49,7 +49,7 @@ export function useItemsFilter(items: Item[]) {
     
     // 指定順序に従ってソート、存在しないカテゴリは末尾に追加
     const sortedCategories = categoryOrder.filter(cat => uniqueCategories.includes(cat))
-    const remainingCategories = uniqueCategories.filter(cat => !categoryOrder.includes(cat)).sort()
+    const remainingCategories = uniqueCategories.filter(cat => !categoryOrder.includes(cat as typeof categoryOrder[number])).sort()
     
     return [...sortedCategories, ...remainingCategories]
   }, [items])

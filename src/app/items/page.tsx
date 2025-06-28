@@ -11,7 +11,7 @@ import EditItemDialog from '@/components/items/edit-item-dialog'
 import ItemsFilterSection from '@/components/items/items-filter-section'
 import ItemsList from '@/components/items/items-list'
 import EmptyState from '@/components/items/empty-state'
-import { Item } from '@/types/item'
+import { Item, SortOption } from '@/types/item'
 
 
 export default function ItemsPage() {
@@ -87,12 +87,22 @@ export default function ItemsPage() {
 
   // ソート変更ハンドラー  
   const handleSortChange = (sortOption: string) => {
-    // 型安全なソートオプション変換
-    const validSortOptions = ['newest', 'oldest', 'name', 'expiry'] as const
-    const typedSortOption = validSortOptions.includes(sortOption as typeof validSortOptions[number]) 
-      ? sortOption as typeof validSortOptions[number]
-      : 'newest'
-    updateFilter('sortBy', typedSortOption)
+    // ソートオプションを適切な型に変換
+    let mappedSortOption: SortOption
+    switch(sortOption) {
+      case 'name':
+        mappedSortOption = 'name-asc'
+        break
+      case 'expiry':
+        mappedSortOption = 'expiry-asc'
+        break
+      case 'oldest':
+        mappedSortOption = 'oldest'
+        break
+      default:
+        mappedSortOption = 'newest'
+    }
+    updateFilter('sortBy', mappedSortOption)
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 
@@ -137,7 +147,6 @@ export default function ItemsPage() {
         availableCategories={availableCategories}
         filteredItemsCount={filteredItems.length}
         onSortChange={handleSortChange}
-        onClearFilters={handleClearFilters}
       />
 
       {filteredAndSortedItems.length === 0 && items.length > 0 ? (

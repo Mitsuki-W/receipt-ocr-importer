@@ -176,7 +176,7 @@ export class AdvancedPatternProcessor implements PatternProcessor {
       case 'context-aware':
         return this.applyContextAwarePattern(context, pattern)
       case 'template-based':
-        return this.applyTemplateBasedPattern(context, pattern)
+        return this.applyTemplateBasedPattern()
       default:
         return []
     }
@@ -234,8 +234,8 @@ export class AdvancedPatternProcessor implements PatternProcessor {
     const lines = context.lines
 
     for (let i = 0; i < lines.length; i++) {
-      if (this.matchesContextRules(lines, i, pattern.contextRules || [])) {
-        const item = this.extractWithContext(lines, i, pattern)
+      if (this.matchesContextRules(lines, i, (pattern.contextRules || []) as unknown as Record<string, unknown>[])) {
+        const item = this.extractWithContext()
         if (item && this.validateItem(item, pattern)) {
           items.push(item)
         }
@@ -245,10 +245,7 @@ export class AdvancedPatternProcessor implements PatternProcessor {
     return items
   }
 
-  private applyTemplateBasedPattern(
-    context: ReceiptAnalysisContext, 
-    pattern: OCRPattern
-  ): ExtractedItem[] {
+  private applyTemplateBasedPattern(): ExtractedItem[] {
     // テンプレートマッチングによる解析
     // 将来的にMLモデルを使用した解析も可能
     return []
@@ -323,9 +320,9 @@ export class AdvancedPatternProcessor implements PatternProcessor {
     }
 
     for (const rule of pattern.extractionRules) {
-      const value = this.applyExtractionRule(rule, match)
+      const value = this.applyExtractionRule(rule as unknown as Record<string, unknown>, match)
       if (value !== null) {
-        item[rule.field as keyof ExtractedItem] = value as any
+        ;(item as Record<string, unknown>)[rule.field] = value
       }
     }
 
@@ -360,11 +357,7 @@ export class AdvancedPatternProcessor implements PatternProcessor {
     return item.name ? item as ExtractedItem : null
   }
 
-  private extractWithContext(
-    lines: string[], 
-    index: number, 
-    pattern: OCRPattern
-  ): ExtractedItem | null {
+  private extractWithContext(): ExtractedItem | null {
     // コンテキスト情報を使用した抽出
     return null
   }
@@ -372,15 +365,15 @@ export class AdvancedPatternProcessor implements PatternProcessor {
   private matchesContextRules(
     lines: string[], 
     index: number, 
-    rules: any[]
+    rules: Record<string, unknown>[]
   ): boolean {
     // コンテキストルールのマッチング
     return rules.length === 0
   }
 
-  private applyExtractionRule(rule: any, match: RegExpMatchArray): any {
+  private applyExtractionRule(rule: Record<string, unknown>, match: RegExpMatchArray): unknown {
     if (rule.source === 'regex-group' && rule.groupIndex !== undefined) {
-      const value = match[rule.groupIndex]
+      const value = match[rule.groupIndex as number]
       if (rule.field === 'price' || rule.field === 'quantity') {
         return value ? parseInt(value) : undefined
       }

@@ -11,7 +11,6 @@ interface ItemsFilterSectionProps {
   availableCategories: string[]
   filteredItemsCount: number
   onSortChange: (sortOption: string) => void
-  // onClearFilters: () => void // 現在未使用
 }
 
 export default function ItemsFilterSection({
@@ -19,8 +18,7 @@ export default function ItemsFilterSection({
   updateFilter,
   availableCategories,
   filteredItemsCount,
-  onSortChange,
-  // onClearFilters
+  onSortChange
 }: ItemsFilterSectionProps) {
   const hasActiveFilters = filters.searchQuery || 
     filters.categoryFilter !== 'all' || 
