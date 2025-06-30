@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Upload, Camera } from 'lucide-react'
+import { Upload, Camera, AlertCircle } from 'lucide-react'
 
 interface UploadMethodSelectorProps {
   onFileSelect: () => void
@@ -25,6 +25,22 @@ export default function UploadMethodSelector({
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* 注意書き */}
+        <div className="mb-6 p-4 bg-amber-50/80 border border-amber-200/60 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="space-y-2">
+              <h4 className="font-medium text-amber-800">撮影時のご注意</h4>
+              <ul className="text-sm text-amber-700 space-y-1">
+                <li>• <strong>レシートは1枚ずつ</strong>撮影してください</li>
+                <li>• 文字が鮮明に写るように明るい場所で撮影してください</li>
+                <li>• レシート全体が画面に収まるようにしてください</li>
+                <li>• 影が入らないよう正面から撮影してください</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button
             variant="outline"

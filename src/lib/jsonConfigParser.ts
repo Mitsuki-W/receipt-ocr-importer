@@ -93,8 +93,8 @@ export class JsonConfigReceiptParser {
     return {
       stores: [
         {
-          name: "LifeSuper",
-          identifiers: ["ライフ", "LIFE"],
+          name: "SupermarketA",
+          identifiers: ["スーパーA", "SUPER-A"],
           excludeKeywords: [
             "小計", "合計", "税込", "税抜", "消費税", "割引", "現金", "クレジット",
             "レシート", "領収書", "店舗", "住所", "電話", "TEL", "営業時間",
@@ -128,8 +128,8 @@ export class JsonConfigReceiptParser {
           ]
         },
         {
-          name: "Costco",
-          identifiers: ["COSTCO", "WHOLESALE", "コストコ"],
+          name: "WarehouseStore",
+          identifiers: ["WAREHOUSE", "WHOLESALE", "大型店"],
           excludeKeywords: [
             "GOLD", "STAR", "EXECUTIVE", "MEMBER", "会員", "BIZ",
             "RECEIPT", "TOTAL", "SUBTOTAL", "TAX", "CASH", "CREDIT"
@@ -161,17 +161,17 @@ export class JsonConfigReceiptParser {
           ],
           specialCases: [
             {
-              name: "prosciutto_grapefruit",
-              trigger: "PROSCIUTTO CRUDO",
+              name: "sample_combo",
+              trigger: "SAMPLE PRODUCT",
               items: [
                 {
-                  name: "PROSCIUTTO CRUDO",
+                  name: "SAMPLE PRODUCT A",
                   price: 1128,
                   quantity: 10,
                   category: "肉類"
                 },
                 {
-                  name: "KSグレープフルーツカップ",
+                  name: "サンプル商品カップ",
                   price: 2148,
                   quantity: 10,
                   category: "果物"
@@ -213,7 +213,7 @@ export class JsonConfigReceiptParser {
       categories: {
         "野菜": ["レタス", "キャベツ", "にんじん", "たまねぎ", "じゃがいも", "トマト"],
         "果物": ["りんご", "バナナ", "みかん", "いちご", "ぶどう", "グレープフルーツ"],
-        "肉類": ["牛肉", "豚肉", "鶏肉", "ひき肉", "ソーセージ", "ハム", "ベーコン", "PROSCIUTTO"],
+        "肉類": ["牛肉", "豚肉", "鶏肉", "ひき肉", "ソーセージ", "ハム", "ベーコン", "SAMPLE"],
         "魚類": ["さけ", "まぐろ", "あじ", "さば", "いわし", "魚", "刺身"],
         "乳製品": ["牛乳", "ヨーグルト", "チーズ", "バター", "ミルク"],
         "パン・穀物": ["パン", "米", "パスタ", "うどん", "風麺"],

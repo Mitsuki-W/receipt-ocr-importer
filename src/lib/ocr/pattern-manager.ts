@@ -174,18 +174,28 @@ export class OCRPatternManager implements PatternManager {
 
   private async initialize(): Promise<void> {
     try {
-      // ローカルストレージから読み込み
-      const stored = localStorage.getItem('ocr-patterns')
-      if (stored) {
-        const patterns = JSON.parse(stored) as OCRPatternConfig[]
-        patterns.forEach(pattern => {
-          this.patterns.set(pattern.id, pattern)
-        })
-      } else {
-        // デフォルトパターンを設定
-        DEFAULT_PATTERNS.forEach(pattern => {
-          this.patterns.set(pattern.id, pattern)
-        })
+      // サーバーサイド環境では localStorage を使用しない
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('ocr-patterns')
+        if (stored) {
+          const patterns = JSON.parse(stored) as OCRPatternConfig[]
+          patterns.forEach(pattern => {
+            this.patterns.set(pattern.id, pattern)
+          })
+          console.log(`Loaded ${patterns.length} patterns from storage`)
+          this.initialized = true
+          return
+        }
+      }
+      
+      // デフォルトパターンを設定
+      DEFAULT_PATTERNS.forEach(pattern => {
+        this.patterns.set(pattern.id, pattern)
+      })
+      console.log(`Loaded ${DEFAULT_PATTERNS.length} default patterns`)
+      
+      // サーバーサイドでは保存をスキップ
+      if (typeof window !== 'undefined' && window.localStorage) {
         await this.saveToStorage()
       }
     } catch (error) {
@@ -238,11 +248,14 @@ export class OCRPatternManager implements PatternManager {
 
   private async saveToStorage(): Promise<void> {
     try {
-      const patterns = Array.from(this.patterns.values())
-      localStorage.setItem('ocr-patterns', JSON.stringify(patterns))
+      // サーバーサイド環境では localStorage を使用しない
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const patterns = Array.from(this.patterns.values())
+        localStorage.setItem('ocr-patterns', JSON.stringify(patterns))
+      }
     } catch (error) {
       console.error('Failed to save patterns to storage:', error)
-      throw new Error('Failed to save patterns')
+      // サーバーサイドでは無視
     }
   }
 

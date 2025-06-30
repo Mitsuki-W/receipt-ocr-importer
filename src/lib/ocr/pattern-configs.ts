@@ -2,17 +2,17 @@ import { OCRPatternConfig, StorePattern } from '@/types/ocr-patterns'
 
 export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
   {
-    id: 'costco-standard',
-    name: 'Costco標準パターン',
-    description: 'Costcoレシートの標準的な5行パターン',
+    id: 'warehouse-standard',
+    name: '大型店標準パターン',
+    description: '大型店レシートの標準的な5行パターン',
     priority: 100,
     enabled: true,
-    storeIdentifiers: ['costco'],
+    storeIdentifiers: ['warehouse'],
     confidence: 0.9,
     patterns: [
       {
-        id: 'costco-5line',
-        name: 'Costco 5行パターン',
+        id: 'warehouse-5line',
+        name: '大型店 5行パターン',
         type: 'multi-line',
         lineCount: 5,
         extractionRules: [
@@ -29,17 +29,17 @@ export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
     ]
   },
   {
-    id: 'life-asterisk',
-    name: 'ライフ*印パターン',
-    description: 'ライフスーパーの*印付き商品パターン',
+    id: 'supermarket-asterisk',
+    name: 'スーパー*印パターン',
+    description: 'スーパーマーケットの*印付き商品パターン',
     priority: 90,
     enabled: true,
-    storeIdentifiers: ['life'],
+    storeIdentifiers: ['supermarket-a'],
     confidence: 0.85,
     patterns: [
       {
-        id: 'life-inline-asterisk',
-        name: 'ライフ行内*パターン',
+        id: 'supermarket-inline-asterisk',
+        name: 'スーパー行内*パターン',
         type: 'single-line',
         regex: '^\\*(.+?)\\s+¥(\\d{1,5})$',
         extractionRules: [
@@ -49,8 +49,8 @@ export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
         confidence: 0.9
       },
       {
-        id: 'life-multiline-asterisk',
-        name: 'ライフ複数行*パターン',
+        id: 'supermarket-multiline-asterisk',
+        name: 'スーパー複数行*パターン',
         type: 'multi-line',
         lineCount: 2,
         extractionRules: [
@@ -67,7 +67,7 @@ export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
     description: '一般的なコンビニレシートパターン',
     priority: 70,
     enabled: true,
-    storeIdentifiers: ['seven-eleven', 'lawson', 'familymart'],
+    storeIdentifiers: ['convenience-a', 'convenience-b', 'convenience-c'],
     confidence: 0.75,
     patterns: [
       {
@@ -93,7 +93,7 @@ export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
     description: '一般的なスーパーマーケットのレシートパターン',
     priority: 60,
     enabled: true,
-    storeIdentifiers: ['aeon', 'ito-yokado', 'maruetsu'],
+    storeIdentifiers: ['supermarket-b', 'supermarket-c', 'supermarket-d'],
     confidence: 0.7,
     patterns: [
       {
@@ -141,32 +141,32 @@ export const DEFAULT_PATTERNS: OCRPatternConfig[] = [
 
 export const STORE_PATTERNS: StorePattern[] = [
   {
-    storeId: 'costco',
-    storeName: 'Costco Wholesale',
-    identifiers: ['costco', 'コストコ', 'wholesale'],
-    description: 'コストコホールセール店舗',
-    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('costco'))
+    storeId: 'warehouse',
+    storeName: '大型店舗チェーン',
+    identifiers: ['warehouse', '大型店', 'wholesale'],
+    description: '大型店舗・ホールセール店舗',
+    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('warehouse'))
   },
   {
-    storeId: 'life',
-    storeName: 'ライフコーポレーション',
-    identifiers: ['life', 'ライフ'],
-    description: 'ライフスーパーマーケット',
-    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('life'))
+    storeId: 'supermarket-a',
+    storeName: 'スーパーマーケットA',
+    identifiers: ['supermarket-a', 'スーパーA'],
+    description: 'スーパーマーケットチェーンA',
+    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('supermarket-a'))
   },
   {
-    storeId: 'seven-eleven',
-    storeName: 'セブン-イレブン',
-    identifiers: ['seven', 'セブン', '711', '7-11'],
-    description: 'セブン-イレブンコンビニエンスストア',
-    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('seven-eleven'))
+    storeId: 'convenience-a',
+    storeName: 'コンビニエンスストアA',
+    identifiers: ['convenience-a', 'コンビニA', '111', 'conv-a'],
+    description: 'コンビニエンスストアチェーンA',
+    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('convenience-a'))
   },
   {
-    storeId: 'aeon',
-    storeName: 'イオングループ',
-    identifiers: ['aeon', 'イオン', 'ジャスコ', 'マックスバリュ'],
-    description: 'イオングループ店舗',
-    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('aeon'))
+    storeId: 'supermarket-b',
+    storeName: 'スーパーマーケットB',
+    identifiers: ['supermarket-b', 'スーパーB', 'チェーンB', 'ストアB'],
+    description: 'スーパーマーケットチェーンB',
+    patterns: DEFAULT_PATTERNS.filter(p => p.storeIdentifiers.includes('supermarket-b'))
   }
 ]
 

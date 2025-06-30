@@ -289,14 +289,14 @@ export class AdvancedPatternProcessor implements PatternProcessor {
 
   // ヘルパーメソッド
   private initializeStoreDetectors(): void {
-    this.storeDetectors.set('costco', (text) => 
-      /costco|コストコ|wholesale/i.test(text))
-    this.storeDetectors.set('life', (text) => 
-      /life|ライフ/i.test(text))
-    this.storeDetectors.set('aeon', (text) => 
-      /aeon|イオン|ジャスコ/i.test(text))
-    this.storeDetectors.set('seven-eleven', (text) => 
-      /seven|セブン|711/i.test(text))
+    this.storeDetectors.set('warehouse', (text) => 
+      /warehouse|大型店|wholesale/i.test(text))
+    this.storeDetectors.set('supermarket-a', (text) => 
+      /supermarket-a|スーパーA/i.test(text))
+    this.storeDetectors.set('supermarket-b', (text) => 
+      /supermarket-b|スーパーB|チェーンB/i.test(text))
+    this.storeDetectors.set('convenience-a', (text) => 
+      /convenience-a|コンビニA|111/i.test(text))
   }
 
   private getOrCreateRegex(pattern: string): RegExp {

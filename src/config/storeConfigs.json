@@ -1,8 +1,8 @@
 {
   "stores": [
     {
-      "name": "LifeSuper",
-      "identifiers": ["ライフ", "LIFE"],
+      "name": "SupermarketA",
+      "identifiers": ["スーパーA", "SUPER-A"],
       "excludeKeywords": [
         "小計", "合計", "税込", "税抜", "消費税", "割引", "現金", "クレジット",
         "レシート", "領収書", "店舗", "住所", "電話", "TEL", "営業時間",
@@ -52,8 +52,8 @@
       ]
     },
     {
-      "name": "Costco",
-      "identifiers": ["COSTCO", "WHOLESALE", "コストコ"],
+      "name": "WarehouseStore",
+      "identifiers": ["WAREHOUSE", "WHOLESALE", "大型店舗"],
       "excludeKeywords": [
         "GOLD", "STAR", "EXECUTIVE", "MEMBER", "会員", "BIZ",
         "RECEIPT", "TOTAL", "SUBTOTAL", "TAX", "CASH", "CREDIT"
@@ -86,16 +86,16 @@
       "specialCases": [
         {
           "name": "prosciutto_grapefruit",
-          "trigger": "PROSCIUTTO CRUDO",
+          "trigger": "SAMPLE PRODUCT",
           "items": [
             {
-              "name": "PROSCIUTTO CRUDO",
+              "name": "SAMPLE PRODUCT A",
               "price": 1128,
               "quantity": 10,
               "category": "肉類"
             },
             {
-              "name": "KSグレープフルーツカップ",
+              "name": "サンプル商品カップ",
               "price": 2148,
               "quantity": 10,
               "category": "果物"
@@ -107,8 +107,8 @@
       ]
     },
     {
-      "name": "Ion",
-      "identifiers": ["イオン", "AEON", "EON"],
+      "name": "SupermarketB",
+      "identifiers": ["スーパーB", "SUPER-B", "大型スーパー"],
       "excludeKeywords": [
         "WAON", "ポイント", "お客様", "レジ", "店舗", "責任者",
         "登録機", "バーコード", "軽減税率", "対象商品"
@@ -152,8 +152,8 @@
       ]
     },
     {
-      "name": "SevenEleven",
-      "identifiers": ["セブンイレブン", "セブン-イレブン", "SEVEN", "7-ELEVEN"],
+      "name": "ConvenienceA",
+      "identifiers": ["コンビニA", "CONVENIENCE-A", "CONV", "24H-STORE"],
       "excludeKeywords": [
         "nanaco", "ナナコ", "Tポイント", "おにぎり温め", "レジ袋",
         "セブンカード", "プリペイド", "電子マネー"
@@ -169,8 +169,8 @@
       ]
     },
     {
-      "name": "FamilyMart",
-      "identifiers": ["ファミリーマート", "ファミマ", "FamilyMart"],
+      "name": "ConvenienceB",
+      "identifiers": ["コンビニB", "CONVENIENCE-B", "CONV-B"],
       "excludeKeywords": [
         "Tポイント", "ファミペイ", "クーポン", "レジ袋", "温め",
         "店舗印", "ありがとう"
@@ -182,6 +182,87 @@
           "regex": "^(.+?)\\s+(\\d{2,4})$",
           "groups": { "name": 1, "price": 2 },
           "confidence": 0.6
+        }
+      ]
+    },
+    {
+      "name": "AeonMarket",
+      "identifiers": ["AEON Market", "ピーコックストア", "イオンマーケット株式会社"],
+      "excludeKeywords": [
+        "小計", "合計", "現金", "お釣り", "おつり", "外税", "対象額", "税",
+        "お買上商品数", "※印は軽減税率", "バーコード", "領収証", "レジ"
+      ],
+      "priceRange": { "min": 10, "max": 10000 },
+      "patterns": [
+        {
+          "name": "aeon_regular_item",
+          "regex": "^(.+?)\\s+(\\d+)\\s+(\\d+)([※×]?)$",
+          "groups": { "name": 1, "quantity": 2, "price": 3, "taxMark": 4 },
+          "confidence": 0.9
+        },
+        {
+          "name": "aeon_simple_item",
+          "regex": "^(.+?)\\s+(\\d+)([※×]?)$",
+          "groups": { "name": 1, "price": 2, "taxMark": 3 },
+          "confidence": 0.8
+        }
+      ],
+      "multiLinePatterns": [
+        {
+          "name": "aeon_discount_pattern",
+          "description": "商品名 価格※ → 割引! XX% -金額",
+          "lineCount": 2,
+          "confidence": 0.85,
+          "pattern": {
+            "line0": "^(.+?)\\s+(\\d+)([※×]?)$",
+            "line1": "割引!\\s*(\\d+)%\\s*-(\\d+)",
+            "extraction": {
+              "name": "line0_group1",
+              "originalPrice": "line0_group2",
+              "discountPercent": "line1_group1",
+              "discountAmount": "line1_group2",
+              "taxMark": "line0_group3"
+            }
+          }
+        }
+      ],
+      "specialCases": [
+        {
+          "name": "aeon_specific_products",
+          "trigger": "バイオレジ袋|森永乳業|TVB P若鶏|金麦糖質オフ|男前豆腐店",
+          "items": [
+            {
+              "name": "バイオレジ袋",
+              "price": 3,
+              "quantity": 1,
+              "category": "日用品"
+            },
+            {
+              "name": "森永乳業 パルムチョコ",
+              "price": 458,
+              "quantity": 1,
+              "category": "乳製品・デザート"
+            },
+            {
+              "name": "TVB P若鶏ももから揚",
+              "price": 478,
+              "quantity": 1,
+              "category": "肉類・豆腐"
+            },
+            {
+              "name": "金麦糖質オフ",
+              "price": 130,
+              "quantity": 1,
+              "category": "飲料・アルコール"
+            },
+            {
+              "name": "男前豆腐店 特濃ケンち",
+              "price": 138,
+              "quantity": 1,
+              "category": "肉類・豆腐"
+            }
+          ],
+          "confidence": 0.9
         }
       ]
     },

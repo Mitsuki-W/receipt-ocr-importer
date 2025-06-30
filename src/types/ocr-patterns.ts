@@ -66,10 +66,14 @@ export interface ExtractedItem {
   quantity?: number
   category?: string
   unit?: string
+  currency?: string // 通貨情報を追加
   confidence: number
   sourcePattern: string
   lineNumbers: number[]
   rawText: string
+  metadata?: {
+    [key: string]: string | number | boolean | null | undefined
+  }
 }
 
 export interface StorePattern {

@@ -63,10 +63,10 @@ export class StoreConfigManager {
   }
   
   private loadDefaultConfigs() {
-    // ライフスーパー設定
+    // スーパーマーケットA設定
     this.addStoreConfig({
-      name: 'LifeSuper',
-      identifiers: ['ライフ', 'LIFE'],
+      name: 'SupermarketA',
+      identifiers: ['スーパーA', 'SUPER-A'],
       excludeKeywords: [
         '小計', '合計', '税込', '税抜', '消費税', '割引', '現金', 'クレジット',
         'レシート', '領収書', '店舗', '住所', '電話', 'TEL', '営業時間',
@@ -126,10 +126,10 @@ export class StoreConfigManager {
       ]
     })
     
-    // コストコ設定
+    // 大型店舗チェーン設定
     this.addStoreConfig({
-      name: 'Costco',
-      identifiers: ['COSTCO', 'WHOLESALE', 'コストコ'],
+      name: 'WarehouseStore',
+      identifiers: ['WAREHOUSE', 'WHOLESALE', '大型店舗'],
       excludeKeywords: [
         'GOLD', 'STAR', 'EXECUTIVE', 'MEMBER', '会員', 'BIZ',
         'RECEIPT', 'TOTAL', 'SUBTOTAL', 'TAX', 'CASH', 'CREDIT'
@@ -172,19 +172,19 @@ export class StoreConfigManager {
         {
           name: 'prosciutto_special',
           confidence: 0.8,
-          condition: (lines, index) => lines[index] === 'PROSCIUTTO CRUDO',
+          condition: (lines, index) => lines[index] === 'SAMPLE PRODUCT',
           handler: () => ({
             // lines, index パラメータは現在未使用
             items: [
               {
-                name: 'PROSCIUTTO CRUDO',
+                name: 'SAMPLE PRODUCT A',
                 price: 1128,
                 quantity: 10,
                 category: '肉類',
                 confidence: 0.8
               },
               {
-                name: 'KSグレープフルーツカップ',
+                name: 'サンプル商品カップ',
                 price: 2148,
                 quantity: 10,
                 category: '果物',
@@ -197,10 +197,10 @@ export class StoreConfigManager {
       ]
     })
     
-    // イオン設定
+    // スーパーマーケットB設定
     this.addStoreConfig({
-      name: 'Ion',
-      identifiers: ['イオン', 'AEON', 'EON'],
+      name: 'SupermarketB',
+      identifiers: ['スーパーB', 'SUPER-B', '大型スーパー'],
       excludeKeywords: [
         'WAON', 'ポイント', 'お客様', 'レジ', '店舗', '責任者',
         '登録機', 'バーコード', '軽減税率', '対象商品'
@@ -330,7 +330,7 @@ export class StoreConfigManager {
     const categories = {
       '野菜': ['レタス', 'キャベツ', 'にんじん', 'たまねぎ', 'じゃがいも', 'トマト', 'きゅうり', 'なす', 'ピーマン', 'もやし', 'ほうれん草', '白菜', '大根', 'しめじ'],
       '果物': ['りんご', 'バナナ', 'みかん', 'いちご', 'ぶどう', 'なし', 'もも', 'メロン', 'すいか', 'キウイ', 'あじわいバナナ', 'グレープフルーツ'],
-      '肉類': ['牛肉', '豚肉', '鶏肉', 'ひき肉', 'ソーセージ', 'ハム', 'ベーコン', '肉', '若鶏', 'ももから揚', 'シーチキン', 'ロース', 'PROSCIUTTO', 'CRUDO'],
+      '肉類': ['牛肉', '豚肉', '鶏肉', 'ひき肉', 'ソーセージ', 'ハム', 'ベーコン', '肉', '若鶏', 'ももから揚', 'シーチキン', 'ロース', 'SAMPLE', 'MEAT'],
       '魚類': ['さけ', 'まぐろ', 'あじ', 'さば', 'いわし', '魚', '刺身', '切身', 'からすがれい', 'かれい', 'シュリンプ', 'カクテル'],
       '乳製品': ['牛乳', 'ヨーグルト', 'チーズ', 'バター', '生クリーム', 'ミルク', 'ユタノム', 'ユタ', 'ギュウニュウ'],
       'パン・穀物': ['パン', '食パン', '米', 'パスタ', 'うどん', 'そば', '風麺'],
@@ -568,7 +568,7 @@ export class ConfigurableReceiptParser {
     const categories = {
       '野菜': ['レタス', 'キャベツ', 'にんじん', 'たまねぎ', 'じゃがいも', 'トマト'],
       '果物': ['りんご', 'バナナ', 'みかん', 'いちご', 'ぶどう', 'グレープフルーツ'],
-      '肉類': ['牛肉', '豚肉', '鶏肉', 'ひき肉', 'ソーセージ', 'ハム', 'ベーコン', 'PROSCIUTTO'],
+      '肉類': ['牛肉', '豚肉', '鶏肉', 'ひき肉', 'ソーセージ', 'ハム', 'ベーコン', 'SAMPLE'],
       '魚類': ['さけ', 'まぐろ', 'あじ', 'さば', 'いわし', '魚', '刺身'],
       '乳製品': ['牛乳', 'ヨーグルト', 'チーズ', 'バター', 'ミルク'],
       'パン・穀物': ['パン', '米', 'パスタ', 'うどん', '風麺'],

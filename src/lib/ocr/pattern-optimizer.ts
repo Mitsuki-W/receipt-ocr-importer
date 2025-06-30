@@ -299,7 +299,7 @@ export class PatternOptimizer {
       if (item.sourcePattern) {
         if (item.sourcePattern.includes('fallback')) {
           confidence *= 0.8  // フォールバックパターンは信頼度を下げる
-        } else if (item.sourcePattern.includes('costco') || item.sourcePattern.includes('life')) {
+        } else if (item.sourcePattern.includes('warehouse') || item.sourcePattern.includes('supermarket')) {
           confidence *= 1.1  // 店舗固有パターンは信頼度を上げる
         }
       }

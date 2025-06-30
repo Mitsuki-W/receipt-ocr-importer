@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Camera, X, RotateCcw, Check } from 'lucide-react'
+import { Camera, X, RotateCcw, Check, AlertCircle } from 'lucide-react'
 
 interface CameraCaptureProps {
   onCapture: (file: File) => void
@@ -123,6 +123,21 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       
       <CardContent>
         <div className="space-y-4">
+          {/* 撮影時の注意書き */}
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-blue-800 mb-1">撮影のポイント</p>
+                <ul className="text-xs text-blue-700 space-y-0.5">
+                  <li>• <strong>1枚ずつ</strong>撮影してください</li>
+                  <li>• レシート全体が画面に収まるように調整</li>
+                  <li>• 明るい場所で文字が鮮明に写るよう撮影</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           {error && (
             <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
               {error}

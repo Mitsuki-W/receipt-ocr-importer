@@ -5,6 +5,7 @@ export interface ExtractedItem {
   price?: number
   quantity?: number
   category?: string
+  currency?: string
 }
 
 export interface OCRResult {
