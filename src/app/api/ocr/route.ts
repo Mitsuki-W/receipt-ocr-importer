@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     })
 
     // ハイブリッドOCR戦略を使用
-    const debugMode = process.env.NODE_ENV === 'development'
+    const debugMode = process.env.NODE_ENV === 'development' // 開発環境でのみデバッグ出力を有効化
     const useHybridStrategy = process.env.USE_HYBRID_STRATEGY === 'true'
     
     console.log('⚙️ OCR処理設定:', {
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // デバッグ分析（重複実行を避けるため一時的に無効化）
+    // デバッグ分析（開発環境で有効）
     if (debugMode) {
       console.log('\n📋 処理結果:')
       console.log(`- 検出商品数: ${result.items.length}`)
