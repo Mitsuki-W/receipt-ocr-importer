@@ -4,7 +4,6 @@ import { ImprovedPatternProcessor } from './improved-pattern-processor'
 import { PatternOptimizer } from './pattern-optimizer'
 import { OCRDebugAnalyzer, DebugAnalysis } from './debug-analyzer'
 import { OCRResultValidator } from './result-validator'
-import { EmergencyOCRFixes } from './emergency-fixes'
 import { ReceiptSpecificFixes } from './receipt-specific-fixes'
 import { Receipt2SpecificPatterns } from './receipt2-specific-patterns'
 import { Receipt3Patterns } from './receipt3-patterns'
@@ -22,7 +21,6 @@ export interface EnhancedOCROptions {
   enableValidation: boolean
   enableAutoCorrection: boolean
   useImprovedProcessor: boolean
-  applyEmergencyFixes: boolean
   useReceiptSpecificFixes: boolean
   useReceipt2Parser: boolean
   useReceipt3Parser: boolean
@@ -71,7 +69,6 @@ export class EnhancedOCRService {
       enableValidation: true,
       enableAutoCorrection: true,
       useImprovedProcessor: true,
-      applyEmergencyFixes: true,
       useReceiptSpecificFixes: true,
       useReceipt2Parser: true,
       useReceipt3Parser: true,
@@ -287,15 +284,6 @@ export class EnhancedOCRService {
                                   (mergedOptions.useReceipt3Parser && this.isReceipt3Like(ocrText))
 
       if (!skipPostProcessing) {
-        // 緊急修正の適用
-        if (mergedOptions.applyEmergencyFixes) {
-          const originalCount = parseResult.items.length
-          parseResult.items = EmergencyOCRFixes.applyAllEmergencyFixes(parseResult.items)
-          
-          if (mergedOptions.debugMode) {
-            console.log(`🚨 緊急修正: ${originalCount}件 → ${parseResult.items.length}件`)
-          }
-        }
 
         // レシート固有の修正適用
         if (mergedOptions.useReceiptSpecificFixes) {

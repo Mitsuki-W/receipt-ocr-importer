@@ -3,24 +3,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { EnhancedOCRService } from '@/lib/ocr/enhanced-ocr-service'
 import { HybridOCRStrategy } from '@/lib/ocr/hybrid-ocr-strategy'
-// import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-// import { cookies } from 'next/headers'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   console.log('🚀 OCR API 処理開始:', new Date().toISOString())
   
   try {
-    // 認証チェックを一時的に無効化
-    // const cookieStore = await cookies()
-    // const supabase = createRouteHandlerClient({ 
-    //   cookies: () => Promise.resolve(cookieStore)
-    // })
-    // const { data: { session }, error: authError } = await supabase.auth.getSession()
+    // 認証チェック
+    const cookieStore = await cookies()
+    const supabase = createRouteHandlerClient({ 
+      cookies: () => Promise.resolve(cookieStore)
+    })
+    const { data: { session }, error: authError } = await supabase.auth.getSession()
 
-    // if (authError || !session) {
-    //   return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
-    // }
+    if (authError || !session) {
+      return NextResponse.json({ error: '認証が必要です' }, { status: 401 })
+    }
 
     console.log('📝 FormData解析開始')
     const formData = await request.formData()
@@ -133,12 +133,12 @@ export async function POST(request: NextRequest) {
       debug: {
         textLines: result.extractedText.split('\n').length,
         itemsFound: result.items.length,
-        storeDetected: (result.metadata as any)?.storeType || 'unknown',
-        patternUsed: (result.metadata as any)?.patternUsed || (result.metadata as any)?.primaryMethod || 'unknown',
+        storeDetected: 'storeType' in (result.metadata || {}) ? (result.metadata as { storeType: string }).storeType : 'unknown',
+        patternUsed: 'patternUsed' in (result.metadata || {}) ? (result.metadata as { patternUsed: string }).patternUsed : 'unknown',
         confidence: result.metadata?.confidence,
         processingTime: result.metadata?.processingTime,
-        methodsUsed: (result.metadata as any)?.methodsUsed || [],
-        qualityScore: (result.metadata as any)?.qualityScore
+        methodsUsed: [],
+        qualityScore: 0
       }
     })
 
