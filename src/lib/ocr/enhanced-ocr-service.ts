@@ -9,7 +9,7 @@ import { Receipt2SpecificPatterns } from './receipt2-specific-patterns'
 import { Receipt3Patterns } from './receipt3-patterns'
 import { LifePatterns } from './life-patterns'
 import { WarehousePatternsSimple } from './warehouse-patterns-simple'
-import { DocumentAIService, DocumentAIOptions } from './document-ai-service'
+import { DocumentAIService } from './document-ai-service'
 import { OCRParseResult, ExtractedItem } from '@/types/ocr-patterns'
 
 export interface EnhancedOCROptions {

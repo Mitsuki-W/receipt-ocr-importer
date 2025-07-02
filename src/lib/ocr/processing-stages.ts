@@ -76,7 +76,7 @@ export class ProcessingStageManager {
           const matches = context.originalText.match(new RegExp(patternRegex.source, 'gm'))
           
           if (matches) {
-            matches.forEach((match, index) => {
+            matches.forEach((match) => {
               const lineIndex = context.lines.findIndex(line => line.includes(match))
               if (lineIndex >= 0) {
                 const extracted = this.extractItemFromMatch(match, pattern, lineIndex)
@@ -122,7 +122,7 @@ export class ProcessingStageManager {
           const matches = context.originalText.match(regex)
           
           if (matches) {
-            matches.forEach((match, index) => {
+            matches.forEach((match) => {
               const lineIndex = context.lines.findIndex(line => line.includes(match))
               if (lineIndex >= 0) {
                 const extracted = this.extractItemFromMatch(match, pattern, lineIndex)
@@ -154,7 +154,7 @@ export class ProcessingStageManager {
    */
   private async fuzzyMatching(
     context: ReceiptAnalysisContext, 
-    patterns: OCRPatternConfig[]
+    _patterns: OCRPatternConfig[]
   ): Promise<OCRParseResult> {
     const items: ExtractedItem[] = []
     const patternsAttempted: string[] = []
@@ -203,7 +203,7 @@ export class ProcessingStageManager {
    */
   private async mlEnhancedMatching(
     context: ReceiptAnalysisContext, 
-    patterns: OCRPatternConfig[]
+    _patterns: OCRPatternConfig[]
   ): Promise<OCRParseResult> {
     const items: ExtractedItem[] = []
     const patternsAttempted: string[] = ['ml-enhanced']
@@ -216,7 +216,7 @@ export class ProcessingStageManager {
       const line = lines[i]
       
       // 商品名と価格の分離を試行
-      const scoreResult = this.scoreLineAsProduct(line, context)
+      const scoreResult = this.scoreLineAsProduct(line)
       
       if (scoreResult.score > 0.3) {
         items.push({
@@ -249,7 +249,7 @@ export class ProcessingStageManager {
    */
   private async fallbackParsing(
     context: ReceiptAnalysisContext, 
-    patterns: OCRPatternConfig[]
+    _patterns: OCRPatternConfig[]
   ): Promise<OCRParseResult> {
     const items: ExtractedItem[] = []
     const currency = this.detectCurrency(context.originalText)
@@ -325,7 +325,7 @@ export class ProcessingStageManager {
   /**
    * 行を商品として評価
    */
-  private scoreLineAsProduct(line: string, context: ReceiptAnalysisContext): {
+  private scoreLineAsProduct(line: string): {
     score: number
     name: string
     price: number

@@ -5,13 +5,12 @@ import {
   ExtractedItem,
   ReceiptAnalysisContext
 } from '@/types/ocr-patterns'
-import { OCRDebugAnalyzer, DebugAnalysis } from './debug-analyzer'
+import { OCRDebugAnalyzer } from './debug-analyzer'
 import { ProductCategorizer } from './product-categorizer'
 import { ProcessingStageManager } from './processing-stages'
 import { StoreDetector } from './store-detector'
 
 export class ImprovedPatternProcessor implements PatternProcessor {
-  private patternCache: Map<string, RegExp> = new Map()
   private debugMode: boolean = false
   private stageManager: ProcessingStageManager
 

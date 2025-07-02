@@ -1,4 +1,4 @@
-import { ExtractedItem, OCRParseResult } from '@/types/ocr-patterns'
+import { ExtractedItem } from '@/types/ocr-patterns'
 import { ProductCategorizer } from './product-categorizer'
 
 /**

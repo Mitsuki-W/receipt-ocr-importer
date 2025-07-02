@@ -45,7 +45,7 @@ export class OCRCommonUtils {
   /**
    * 価格文字列をパース（日本円・ドル対応）
    */
-  static parsePrice(priceText: string, fullText: string = ''): number {
+  static parsePrice(priceText: string): number {
     // 数字とピリオドのみ残す
     const cleanText = priceText.replace(/[^\d.]/g, '')
     const price = parseFloat(cleanText)
