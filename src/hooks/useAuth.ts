@@ -14,6 +14,7 @@ export function useAuth() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastActivityRef = useRef<number>(Date.now())
+  const alertShownRef = useRef<boolean>(false)
 
   // ログアウト関数を定義
   const signOut = useCallback(async (isAutoLogout = false) => {
@@ -29,27 +30,44 @@ export function useAuth() {
     
     await supabase.auth.signOut()
     
-    if (isAutoLogout) {
-      // 自動ログアウトの場合は通知を表示
-      alert('セッションが15分間非アクティブだったため、自動的にログアウトしました。')
-    } else {
-      // 手動ログアウトの場合は通知を表示
-      alert('ログアウトしました。')
+    // ポップアップを一度だけ表示
+    if (!alertShownRef.current) {
+      alertShownRef.current = true
+      if (isAutoLogout) {
+        // 自動ログアウトの場合は通知を表示
+        alert('セッションが15分間非アクティブだったため、自動的にログアウトしました。')
+      } else {
+        // 手動ログアウトの場合は通知を表示
+        alert('ログアウトしました。')
+      }
+      // 少し遅らせてフラグをリセット（次回ログイン用）
+      setTimeout(() => {
+        alertShownRef.current = false
+      }, 1000)
     }
   }, [])
 
   // セッションタイムアウトとログアウト警告を管理
   const resetSessionTimer = useCallback(() => {
     const now = Date.now()
+    
+    // 前回のリセットから1秒未満の場合はスキップ（デバウンス）
+    if (now - lastActivityRef.current < 1000) {
+      return
+    }
+    
     lastActivityRef.current = now
     setSessionWarning(false)
+
 
     // 既存のタイマーをクリア
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
     if (warningTimeoutRef.current) {
       clearTimeout(warningTimeoutRef.current)
+      warningTimeoutRef.current = null
     }
 
     // 10分後に警告を表示
@@ -58,7 +76,7 @@ export function useAuth() {
     }, SESSION_TIMEOUT - WARNING_TIME)
 
     // 15分後に自動ログアウト
-    timeoutRef.current = setTimeout(async () => {
+    const timeoutId = setTimeout(async () => {
       // タイマーをクリア
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
@@ -72,19 +90,24 @@ export function useAuth() {
       setSessionWarning(false)
       await signOut(true)
     }, SESSION_TIMEOUT)
+    
+    timeoutRef.current = timeoutId
   }, [signOut])
 
   // アクティビティ検知用のイベントリスナー
   useEffect(() => {
     if (!user) return
 
-    const activities = ['keypress', 'touchstart', 'click']
+    const activities = ['click', 'touchstart']
     let lastActivityTime = 0
     
-    const handleActivity = () => {
+    const handleActivity = (event: Event) => {
       const now = Date.now()
       // 500ms以内の連続イベントは無視（デバウンス）
       if (now - lastActivityTime < 500) return
+      
+      // セッション警告表示中は自動延長しない
+      if (sessionWarning) return
       
       lastActivityTime = now
       resetSessionTimer()
@@ -101,7 +124,7 @@ export function useAuth() {
         document.removeEventListener(activity, handleActivity, true)
       })
     }
-  }, [user, resetSessionTimer])
+  }, [user, resetSessionTimer, sessionWarning])
 
   useEffect(() => {
     // 初期認証状態を取得
@@ -121,6 +144,7 @@ export function useAuth() {
     // 認証状態の変更を監視
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        
         setUser(session?.user ?? null)
         setLoading(false)
         
@@ -136,6 +160,8 @@ export function useAuth() {
           if (warningTimeoutRef.current) {
             clearTimeout(warningTimeoutRef.current)
           }
+        } else if (event === 'TOKEN_REFRESHED') {
+          resetSessionTimer()
         }
       }
     )
@@ -146,6 +172,7 @@ export function useAuth() {
   // セッション延長（警告が表示された時に使用）
   const extendSession = useCallback(() => {
     if (user) {
+      setSessionWarning(false)  // 警告を非表示
       resetSessionTimer()
     }
   }, [user, resetSessionTimer])

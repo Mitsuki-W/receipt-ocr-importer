@@ -138,8 +138,8 @@ export default function HistoryFilterSection({
                     <SelectItem value="consumed-asc">消費日（古い順）</SelectItem>
                     <SelectItem value="newest">登録日（新しい順）</SelectItem>
                     <SelectItem value="oldest">登録日（古い順）</SelectItem>
-                    <SelectItem value="expiry-asc">期限順（近い順）</SelectItem>
-                    <SelectItem value="expiry-desc">期限順（遠い順）</SelectItem>
+                    <SelectItem value="expiry-asc">期限日（近い順）</SelectItem>
+                    <SelectItem value="expiry-desc">期限日（遠い順）</SelectItem>
                     <SelectItem value="purchase-desc">購入日（新しい順）</SelectItem>
                     <SelectItem value="purchase-asc">購入日（古い順）</SelectItem>
                     <SelectItem value="name-asc">名前順（あ→ん）</SelectItem>

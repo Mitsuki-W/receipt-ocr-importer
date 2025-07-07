@@ -54,6 +54,12 @@ export default function ItemCard({ item, onEdit, onToggleConsumption }: ItemCard
             <p><span className="font-medium">購入日:</span> {item.purchase_date}</p>
           )}
           
+          <p><span className="font-medium">登録日:</span> {new Date(item.created_at).toISOString().split('T')[0]}</p>
+          
+          {item.price !== null && item.price !== undefined && (
+            <p><span className="font-medium">価格:</span> {item.currency || '¥'}{item.price}</p>
+          )}
+          
           {item.notes && (
             <p><span className="font-medium">メモ:</span> {item.notes}</p>
           )}

@@ -146,7 +146,7 @@ export class EnhancedOCRService {
       const ocrText = await this.performOCR(imageFile)
       
       if (mergedOptions.debugMode) {
-        console.log('Extracted OCR text:', ocrText)
+        console.log('抽出されたOCRテキスト:', ocrText)
       }
 
       // 2. パターンマッチングによる解析
@@ -334,7 +334,7 @@ export class EnhancedOCRService {
       }
 
     } catch (error) {
-      console.error('Enhanced OCR processing failed:', error)
+      console.error('拡張OCR処理が失敗しました:', error)
       
       // エラー時のフォールバック
       try {
@@ -635,7 +635,7 @@ export class EnhancedOCRService {
           confidences.push(result.metadata?.confidence || 0)
         }
       } catch (error) {
-        console.warn(`Test iteration ${i + 1} failed:`, error)
+        console.warn(`テスト反復 ${i + 1} が失敗しました:`, error)
       }
     }
 
@@ -669,7 +669,7 @@ export class EnhancedOCRService {
         times.push(endTime - startTime)
         if (result.success) successCount++
       } catch (error) {
-        console.warn(`Performance test iteration ${i + 1} failed:`, error)
+        console.warn(`パフォーマンステスト反復 ${i + 1} が失敗しました:`, error)
       }
     }
 

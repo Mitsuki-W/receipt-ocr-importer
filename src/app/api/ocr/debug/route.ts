@@ -2,14 +2,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { EnhancedOCRService } from '@/lib/ocr/enhanced-ocr-service'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
     // 認証チェック（開発環境ではスキップ可能）
     if (process.env.NODE_ENV === 'production') {
-      const supabase = createRouteHandlerClient({ cookies })
+      const supabase = await createClient()
       const { data: { session }, error: authError } = await supabase.auth.getSession()
 
       if (authError || !session) {

@@ -21,10 +21,39 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const startCamera = useCallback(async () => {
     try {
       setError('')
+      console.log('カメラ開始処理を開始します...')
+      
+      // 先にビデオ要素を表示するためにストリーミング状態を有効にする
+      setIsStreaming(true)
+      
+      // DOM更新を待つ
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // デバイス確認
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('このブラウザはカメラをサポートしていません。')
+      }
+      
+      // 利用可能なカメラデバイスを確認
+      console.log('利用可能なデバイスを確認中...')
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const videoDevices = devices.filter(device => device.kind === 'videoinput')
+      console.log('検出されたビデオデバイス:', videoDevices)
+      
+      if (videoDevices.length === 0) {
+        throw new Error('カメラデバイスが見つかりません。')
+      }
+      
+      // ビデオ要素の存在確認
+      if (!videoRef.current) {
+        console.error('ビデオ要素がまだ利用できません')
+        throw new Error('ビデオ要素が見つかりません')
+      }
       
       // まず背面カメラを試す（モバイル用）
       let stream: MediaStream
       try {
+        console.log('背面カメラでの接続を試行中...')
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'environment',
@@ -32,25 +61,42 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
             height: { ideal: 1080 }
           }
         })
-      } catch {
+        console.log('背面カメラでの接続に成功')
+      } catch (envError) {
         // 背面カメラが利用できない場合（PC等）は通常のカメラを使用
-        console.log('背面カメラが利用できません。フロントカメラを使用します。')
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          }
-        })
+        console.log('背面カメラが利用できません。フロントカメラを試行中...', envError)
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            }
+          })
+          console.log('フロントカメラでの接続に成功')
+        } catch (frontError) {
+          console.log('フロントカメラも失敗。デフォルト設定で試行中...', frontError)
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true
+          })
+          console.log('デフォルト設定での接続に成功')
+        }
       }
+      
+      console.log('ストリーム取得成功:', stream)
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         streamRef.current = stream
-        setIsStreaming(true)
+        console.log('ビデオ要素にストリームを設定完了')
+      } else {
+        console.error('ビデオ要素が見つかりません')
+        throw new Error('ビデオ要素が見つかりません')
       }
     } catch (err) {
-      console.error('カメラアクセスエラー:', err)
-      setError('カメラにアクセスできません。ブラウザの設定を確認してください。')
+      console.error('カメラアクセスエラー詳細:', err)
+      const errorMessage = err instanceof Error ? err.message : 'カメラにアクセスできません'
+      setError(`カメラエラー: ${errorMessage}`)
+      setIsStreaming(false) // エラー時は状態をリセット
     }
   }, [])
 
@@ -146,7 +192,13 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
           {!isStreaming && !capturedImage && (
             <div className="text-center">
-              <Button onClick={startCamera} className="mb-4">
+              <Button 
+                onClick={() => {
+                  console.log('カメラ開始ボタンがクリックされました')
+                  startCamera()
+                }} 
+                className="mb-4"
+              >
                 <Camera className="mr-2 h-4 w-4" />
                 カメラを開始
               </Button>

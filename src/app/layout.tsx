@@ -20,6 +20,17 @@ export default function RootLayout({
   const { user, loading, signOut, sessionWarning, extendSession } = useAuth()
   const pathname = usePathname()
 
+  // パスワードリセットページは認証不要でヘッダーも非表示
+  if (pathname === '/reset-password') {
+    return (
+      <html lang="ja">
+        <body className={inter.className}>
+          {children}
+        </body>
+      </html>
+    )
+  }
+
   if (loading) {
     return (
       <html lang="ja">

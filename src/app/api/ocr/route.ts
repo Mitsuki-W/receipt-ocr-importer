@@ -1,10 +1,9 @@
-// app/api/ocr/route.ts
+// アプリケーション/API/OCR/ルート.ts
 
 import { NextRequest, NextResponse } from 'next/server'
 import { EnhancedOCRService } from '@/lib/ocr/enhanced-ocr-service'
 import { HybridOCRStrategy } from '@/lib/ocr/hybrid-ocr-strategy'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
@@ -12,10 +11,7 @@ export async function POST(request: NextRequest) {
   
   try {
     // 認証チェック
-    const cookieStore = await cookies()
-    const supabase = createRouteHandlerClient({ 
-      cookies: () => Promise.resolve(cookieStore)
-    })
+    const supabase = await createClient()
     const { data: { session }, error: authError } = await supabase.auth.getSession()
 
     if (authError || !session) {

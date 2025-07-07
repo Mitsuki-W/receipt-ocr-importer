@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Upload, Camera, AlertCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 interface UploadMethodSelectorProps {
   onFileSelect: () => void
@@ -11,6 +12,28 @@ export default function UploadMethodSelector({
   onFileSelect, 
   onCameraSelect 
 }: UploadMethodSelectorProps) {
+  const [cameraAvailable, setCameraAvailable] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    // カメラ利用可能性をチェック
+    const checkCameraAvailability = async () => {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setCameraAvailable(false)
+          return
+        }
+        
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = devices.filter(device => device.kind === 'videoinput')
+        setCameraAvailable(videoDevices.length > 0)
+      } catch (error) {
+        console.error('カメラ確認エラー:', error)
+        setCameraAvailable(false)
+      }
+    }
+
+    checkCameraAvailability()
+  }, [])
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300">
       <CardHeader className="pb-4">
@@ -52,11 +75,31 @@ export default function UploadMethodSelector({
           </Button>
           <Button
             variant="outline"
-            className="h-28 flex flex-col gap-3 bg-gradient-to-br from-white to-slate-50/50 border-slate-200 hover:border-teal-300 hover:bg-gradient-to-br hover:from-teal-50 hover:to-teal-100/50 transition-all duration-200 group"
-            onClick={onCameraSelect}
+            className={`h-28 flex flex-col gap-3 bg-gradient-to-br from-white to-slate-50/50 border-slate-200 transition-all duration-200 group ${
+              cameraAvailable === false 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:border-teal-300 hover:bg-gradient-to-br hover:from-teal-50 hover:to-teal-100/50'
+            }`}
+            onClick={cameraAvailable === false ? undefined : onCameraSelect}
+            disabled={cameraAvailable === false}
           >
-            <Camera className="h-7 w-7 text-slate-600 group-hover:text-teal-600 transition-colors duration-200" />
-            <span className="font-medium text-slate-700 group-hover:text-teal-700">カメラで撮影</span>
+            <Camera className={`h-7 w-7 transition-colors duration-200 ${
+              cameraAvailable === false 
+                ? 'text-slate-400' 
+                : 'text-slate-600 group-hover:text-teal-600'
+            }`} />
+            <span className={`font-medium transition-colors duration-200 ${
+              cameraAvailable === false 
+                ? 'text-slate-400' 
+                : 'text-slate-700 group-hover:text-teal-700'
+            }`}>
+              {cameraAvailable === null 
+                ? 'カメラ確認中...' 
+                : cameraAvailable === false 
+                  ? 'カメラ利用不可' 
+                  : 'カメラで撮影'
+              }
+            </span>
           </Button>
         </div>
       </CardContent>

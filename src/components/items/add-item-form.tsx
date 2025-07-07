@@ -24,8 +24,10 @@ export default function AddItemForm({ onSuccess, onCancel }: AddItemFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    quantity: '',
+    quantity: '1',
     unit: '個',
+    price: '',
+    currency: '¥',
     expiry_date: '',
     purchase_date: new Date().toISOString().split('T')[0], // 今日の日付
     notes: ''
@@ -48,6 +50,8 @@ export default function AddItemForm({ onSuccess, onCancel }: AddItemFormProps) {
             category: formData.category || 'その他',
             quantity: parseFloat(formData.quantity) || 1,
             unit: formData.unit,
+            price: formData.price ? parseFloat(formData.price) : null,
+            currency: formData.currency || null,
             expiry_date: formData.expiry_date || null,
             purchase_date: formData.purchase_date || null,
             notes: formData.notes || null,
@@ -107,7 +111,8 @@ export default function AddItemForm({ onSuccess, onCancel }: AddItemFormProps) {
               <Input
                 id="quantity"
                 type="number"
-                step="0.1"
+                step="1"
+                min="1"
                 value={formData.quantity}
                 onChange={(e) => setFormData({...formData, quantity: e.target.value})}
                 placeholder="1"
@@ -125,6 +130,33 @@ export default function AddItemForm({ onSuccess, onCancel }: AddItemFormProps) {
                       {unit}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price">価格</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.price}
+                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                placeholder="100"
+              />
+            </div>
+            <div>
+              <Label htmlFor="currency">通貨</Label>
+              <Select value={formData.currency} onValueChange={(value) => setFormData({...formData, currency: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="¥">¥ (円)</SelectItem>
+                  <SelectItem value="$">$ (ドル)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

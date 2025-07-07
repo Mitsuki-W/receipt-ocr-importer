@@ -87,22 +87,8 @@ export default function ItemsPage() {
 
   // ソート変更ハンドラー  
   const handleSortChange = (sortOption: string) => {
-    // ソートオプションを適切な型に変換
-    let mappedSortOption: SortOption
-    switch(sortOption) {
-      case 'name':
-        mappedSortOption = 'name-asc'
-        break
-      case 'expiry':
-        mappedSortOption = 'expiry-asc'
-        break
-      case 'oldest':
-        mappedSortOption = 'oldest'
-        break
-      default:
-        mappedSortOption = 'newest'
-    }
-    updateFilter('sortBy', mappedSortOption)
+    // ソートオプションをSortOption型として直接使用
+    updateFilter('sortBy', sortOption as SortOption)
     setFrozenOrder([]) // ソート変更時は固定順序を解除
   }
 

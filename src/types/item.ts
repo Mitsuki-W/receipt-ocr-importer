@@ -4,6 +4,8 @@ export interface Item {
   category: string
   quantity: number
   unit: string
+  price?: number | null
+  currency?: string | null
   expiry_date: string | null
   purchase_date: string | null
   is_consumed: boolean

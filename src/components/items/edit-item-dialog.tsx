@@ -27,6 +27,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
     category: item?.category || '',
     quantity: item?.quantity?.toString() || '',
     unit: item?.unit || '個',
+    price: item?.price?.toString() || '',
+    currency: item?.currency || '¥',
     expiry_date: item?.expiry_date || '',
     purchase_date: item?.purchase_date || '',
     notes: item?.notes || ''
@@ -40,6 +42,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
         category: item.category,
         quantity: item.quantity.toString(),
         unit: item.unit,
+        price: item.price?.toString() || '',
+        currency: item.currency || '¥',
         expiry_date: item.expiry_date || '',
         purchase_date: item.purchase_date || '',
         notes: item.notes || ''
@@ -63,6 +67,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
           category: formData.category || 'その他',
           quantity: parseFloat(formData.quantity) || 1,
           unit: formData.unit,
+          price: formData.price ? parseFloat(formData.price) : null,
+          currency: formData.currency || null,
           expiry_date: formData.expiry_date || null,
           purchase_date: formData.purchase_date || null,
           notes: formData.notes || null,
@@ -149,7 +155,8 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
               <Input
                 id="quantity"
                 type="number"
-                step="0.1"
+                step="1"
+                min="1"
                 value={formData.quantity}
                 onChange={(e) => setFormData({...formData, quantity: e.target.value})}
                 placeholder="1"
@@ -167,6 +174,33 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
                       {unit}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="price">価格</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.price}
+                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                placeholder="100"
+              />
+            </div>
+            <div>
+              <Label htmlFor="currency">通貨</Label>
+              <Select value={formData.currency} onValueChange={(value) => setFormData({...formData, currency: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="¥">¥ (円)</SelectItem>
+                  <SelectItem value="$">$ (ドル)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

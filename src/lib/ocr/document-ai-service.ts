@@ -39,7 +39,7 @@ export class DocumentAIService {
     this.processorId = options.processorId || process.env.DOCUMENT_AI_PROCESSOR_ID || ''
 
     if (!this.projectId || !this.processorId) {
-      throw new Error('Google Cloud Project ID and Document AI Processor ID are required')
+      throw new Error('Google Cloud Project IDとDocument AI Processor IDが必要です')
     }
   }
 
@@ -100,7 +100,7 @@ export class DocumentAIService {
 
       const document = result.document
       if (!document) {
-        throw new Error('Document AI processing failed: No document returned')
+        throw new Error('Document AI処理が失敗しました: ドキュメントが返されませんでした')
       }
 
       if (debugMode) {

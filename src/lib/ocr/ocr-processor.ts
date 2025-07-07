@@ -14,7 +14,7 @@ export class OCRProcessor {
       if (!isServerSide) {
         // ブラウザ環境では従来のAPI経由処理
         if (!(imageFile instanceof File)) {
-          throw new Error('Browser environment requires File object')
+          throw new Error('ブラウザ環境ではFileオブジェクトが必要です')
         }
         return await this.performOCRFromBrowser(imageFile)
       }
@@ -39,7 +39,7 @@ export class OCRProcessor {
         const arrayBuffer = await imageFile.arrayBuffer()
         imageBuffer = Buffer.from(arrayBuffer)
       } else {
-        throw new Error('Unsupported image file type')
+        throw new Error('サポートされていない画像ファイルタイプです')
       }
 
       // Google Cloud Vision APIでOCR実行
@@ -83,13 +83,13 @@ export class OCRProcessor {
       })
 
       if (!response.ok) {
-        throw new Error(`OCR API Error: ${response.status}`)
+        throw new Error(`OCR APIエラー: ${response.status}`)
       }
 
       const data = await response.json()
       
       if (data.error) {
-        throw new Error(`OCR Processing Error: ${data.error}`)
+        throw new Error(`OCR処理エラー: ${data.error}`)
       }
 
       // DOCUMENT_TEXT_DETECTIONの結果を優先
@@ -102,7 +102,7 @@ export class OCRProcessor {
         return data.responses[0].textAnnotations[0].description
       }
 
-      throw new Error('No text detected in image')
+      throw new Error('画像からテキストを検出できませんでした')
     } catch (error) {
       console.error('OCR処理エラー:', error)
       throw error
@@ -115,7 +115,7 @@ export class OCRProcessor {
   private static fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       if (typeof FileReader === 'undefined') {
-        reject(new Error('FileReader is not available in this environment'))
+        reject(new Error('この環境ではFileReaderは利用できません'))
         return
       }
       
@@ -126,7 +126,7 @@ export class OCRProcessor {
         const base64 = result.split(',')[1]
         resolve(base64)
       }
-      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'))
       reader.readAsDataURL(file)
     })
   }
