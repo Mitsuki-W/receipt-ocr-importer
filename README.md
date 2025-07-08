@@ -1,33 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Receipt OCR Importer
+
+Track refrigerator inventory using OCR-scanned receipts
+
+## Features
+
+- 📱 Receipt OCR scanning with Google Cloud Vision API
+- 🍎 Food item management and tracking
+- 📅 Expiry date monitoring with alerts
+- 📊 Consumption history and analytics
+- 🔐 Secure authentication with Supabase
+- 💰 Multi-currency support (¥ / $)
+
+## Tech Stack
+
+- **Frontend**: Next.js 15.3.4, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL)
+- **OCR**: Google Cloud Vision API & Document AI
+- **Authentication**: Supabase Auth
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Set up environment variables in `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+GOOGLE_CLOUD_PROJECT_ID=your_project_id
+GOOGLE_CLOUD_PRIVATE_KEY=your_private_key
+GOOGLE_CLOUD_CLIENT_EMAIL=your_client_email
+USE_DOCUMENT_AI=true
+DOCUMENT_AI_PROCESSOR_ID=your_processor_id
+DOCUMENT_AI_LOCATION=us
+USE_HYBRID_STRATEGY=true
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Upload Receipt**: Take a photo or upload an image of your receipt
+2. **OCR Processing**: The system automatically extracts food items with prices
+3. **Select Items**: Choose which items to add to your inventory
+4. **Manage Inventory**: View, edit, and track your food items
+5. **Monitor Expiry**: Get alerts for items approaching expiration
 
 ## Deploy on Vercel
 
