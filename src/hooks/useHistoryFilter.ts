@@ -33,26 +33,14 @@ export function useHistoryFilter(items: HistoryItem[]) {
   }
 
   const filteredItems = useMemo(() => {
-    console.log('フィルタリング開始:', {
-      totalItems: items.length,
-      filters: filters,
-      timestamp: new Date().toISOString()
-    })
-
     let filtered = items
 
     // 検索クエリでフィルタリング
     if (filters.searchQuery.trim()) {
-      const beforeSearch = filtered.length
       filtered = filtered.filter(item => 
         item.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
         item.notes?.toLowerCase().includes(filters.searchQuery.toLowerCase())
       )
-      console.log('検索フィルタ適用:', {
-        before: beforeSearch,
-        after: filtered.length,
-        query: filters.searchQuery
-      })
     }
 
     // カテゴリでフィルタリング
@@ -176,12 +164,6 @@ export function useHistoryFilter(items: HistoryItem[]) {
         dateFilterTo: filters.dateFilterTo
       })
     }
-
-    console.log('フィルタリング完了:', {
-      originalCount: items.length,
-      filteredCount: filtered.length,
-      filters: filters
-    })
 
     return filtered
   }, [items, filters])

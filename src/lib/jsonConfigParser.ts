@@ -236,10 +236,6 @@ export class JsonConfigReceiptParser {
     // 店舗タイプを検出
     const storeConfig = this.detectStoreConfig(lines)
     
-    if (this.config.globalSettings.enableLogging) {
-      console.log(`=== ${storeConfig.name} パーサー開始 ===`)
-      console.log(`総行数: ${lines.length}`)
-    }
     
     const items: ParsedItem[] = []
     const usedLines = new Set<number>()
@@ -304,9 +300,6 @@ export class JsonConfigReceiptParser {
       }
     }
     
-    if (this.config.globalSettings.enableLogging) {
-      console.log(`検出アイテム数: ${items.length}`)
-    }
     
     return this.removeDuplicates(items)
   }

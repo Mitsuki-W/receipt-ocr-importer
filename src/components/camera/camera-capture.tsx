@@ -194,7 +194,6 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
             <div className="text-center">
               <Button 
                 onClick={() => {
-                  console.log('カメラ開始ボタンがクリックされました')
                   startCamera()
                 }} 
                 className="mb-4"

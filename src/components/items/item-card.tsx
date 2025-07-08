@@ -4,6 +4,12 @@ import { Edit } from 'lucide-react'
 import { Item } from '@/types/item'
 import { getExpiryStatus, getExpiryStatusInfo } from '@/utils/expiryStatus'
 
+const getCurrencySymbol = (currency: string | undefined | null): string => {
+  if (currency === 'JPY') return '¥'
+  if (currency === 'USD') return '$'
+  return currency || '¥'
+}
+
 interface ItemCardProps {
   item: Item
   onEdit: (item: Item) => void
@@ -57,7 +63,7 @@ export default function ItemCard({ item, onEdit, onToggleConsumption }: ItemCard
           <p><span className="font-medium">登録日:</span> {new Date(item.created_at).toISOString().split('T')[0]}</p>
           
           {item.price !== null && item.price !== undefined && (
-            <p><span className="font-medium">価格:</span> {item.currency || '¥'}{item.price}</p>
+            <p><span className="font-medium">価格:</span> {getCurrencySymbol(item.currency)}{item.price}</p>
           )}
           
           {item.notes && (

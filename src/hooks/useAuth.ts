@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { SESSION_CONFIG } from '@/constants/appConstants'
 
 const { TIMEOUT: SESSION_TIMEOUT, WARNING_TIME } = SESSION_CONFIG
+const LAST_ACTIVITY_KEY = 'last_activity_time'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -57,10 +58,11 @@ export function useAuth() {
     }
     
     lastActivityRef.current = now
+    // 最後の活動時刻を永続化
+    localStorage.setItem(LAST_ACTIVITY_KEY, now.toString())
     setSessionWarning(false)
 
-
-    // 既存のタイマーをクリア
+    // 既存のタイマーを強制的にクリア
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
@@ -71,27 +73,22 @@ export function useAuth() {
     }
 
     // 10分後に警告を表示
-    warningTimeoutRef.current = setTimeout(() => {
+    const warningTimerId = setTimeout(() => {
       setSessionWarning(true)
     }, SESSION_TIMEOUT - WARNING_TIME)
+    warningTimeoutRef.current = warningTimerId
 
     // 15分後に自動ログアウト
-    const timeoutId = setTimeout(async () => {
-      // タイマーをクリア
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-        timeoutRef.current = null
-      }
-      if (warningTimeoutRef.current) {
-        clearTimeout(warningTimeoutRef.current)
-        warningTimeoutRef.current = null
-      }
+    const logoutTimerId = setTimeout(async () => {
+      // タイマーIDをクリア
+      timeoutRef.current = null
+      warningTimeoutRef.current = null
       
       setSessionWarning(false)
       await signOut(true)
     }, SESSION_TIMEOUT)
     
-    timeoutRef.current = timeoutId
+    timeoutRef.current = logoutTimerId
   }, [signOut])
 
   // アクティビティ検知用のイベントリスナー
@@ -101,7 +98,7 @@ export function useAuth() {
     const activities = ['click', 'touchstart']
     let lastActivityTime = 0
     
-    const handleActivity = (event: Event) => {
+    const handleActivity = () => {
       const now = Date.now()
       // 500ms以内の連続イベントは無視（デバウンス）
       if (now - lastActivityTime < 500) return
@@ -133,8 +130,18 @@ export function useAuth() {
       setUser(session?.user ?? null)
       setLoading(false)
       
-      // セッションが存在する場合、タイマーを開始
+      // セッションが存在する場合、最後の活動時刻をチェック
       if (session?.user) {
+        const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY)
+        if (lastActivity) {
+          const timeSinceLastActivity = Date.now() - parseInt(lastActivity)
+          if (timeSinceLastActivity > SESSION_TIMEOUT) {
+            // 15分以上経過している場合は自動ログアウト
+            await signOut(true)
+            return
+          }
+        }
+        // タイマーを開始
         resetSessionTimer()
       }
     }
@@ -163,13 +170,12 @@ export function useAuth() {
         } else if (event === 'TOKEN_REFRESHED') {
           // トークンリフレッシュ時はタイマーをリセットしない
           // トークンの自動更新は1時間ごとに発生するため、セッションタイマーをリセットすべきではない
-          console.log('Token refreshed - セッションタイマーはリセットしません')
         }
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [resetSessionTimer])
+  }, [resetSessionTimer, signOut])
 
   // セッション延長（警告が表示された時に使用）
   const extendSession = useCallback(() => {

@@ -20,6 +20,12 @@ export default function OCRResults({
   onSaveItems,
   onReset
 }: OCRResultsProps) {
+  const getCurrencySymbol = (currency: string | undefined): string => {
+    if (currency === 'JPY') return '¥'
+    if (currency === 'USD') return '$'
+    return currency || '$'
+  }
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300">
       <CardHeader className="pb-4">
@@ -63,7 +69,7 @@ export default function OCRResults({
                       <p className="font-medium text-slate-800 truncate">{item.name}</p>
                       <p className="text-sm text-slate-600">
                         {item.category} 
-                        {item.price && ` • ${item.currency || '$'}${item.price.toLocaleString('en-CA')}`}
+                        {item.price && ` • ${getCurrencySymbol(item.currency)}${item.price.toLocaleString('en-CA')}`}
                         {item.quantity && item.quantity > 1 && ` • 数量: ${item.quantity}`}
                       </p>
                     </div>

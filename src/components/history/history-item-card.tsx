@@ -3,6 +3,12 @@ import { HistoryItem } from '@/types/history'
 import { Calendar, Clock, ShoppingCart } from 'lucide-react'
 import { formatDateTimeInToronto } from '@/utils/timezone'
 
+const getCurrencySymbol = (currency: string | undefined | null): string => {
+  if (currency === 'JPY') return '¥'
+  if (currency === 'USD') return '$'
+  return currency || '¥'
+}
+
 interface HistoryItemCardProps {
   item: HistoryItem
 }
@@ -45,7 +51,7 @@ export default function HistoryItemCard({ item }: HistoryItemCardProps) {
           
           {/* 価格 */}
           {item.price !== null && item.price !== undefined && (
-            <p><span className="font-medium">価格:</span> {item.currency || '¥'}{item.price}</p>
+            <p><span className="font-medium">価格:</span> {getCurrencySymbol(item.currency)}{item.price}</p>
           )}
           
           {/* メモ */}

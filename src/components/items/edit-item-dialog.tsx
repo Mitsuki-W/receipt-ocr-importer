@@ -28,7 +28,7 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
     quantity: item?.quantity?.toString() || '',
     unit: item?.unit || '個',
     price: item?.price?.toString() || '',
-    currency: item?.currency || '¥',
+    currency: item?.currency === 'JPY' ? '¥' : item?.currency === 'USD' ? '$' : '¥',
     expiry_date: item?.expiry_date || '',
     purchase_date: item?.purchase_date || '',
     notes: item?.notes || ''
@@ -43,7 +43,7 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
         quantity: item.quantity.toString(),
         unit: item.unit,
         price: item.price?.toString() || '',
-        currency: item.currency || '¥',
+        currency: item.currency === 'JPY' ? '¥' : item.currency === 'USD' ? '$' : '¥',
         expiry_date: item.expiry_date || '',
         purchase_date: item.purchase_date || '',
         notes: item.notes || ''
@@ -68,7 +68,7 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
           quantity: parseFloat(formData.quantity) || 1,
           unit: formData.unit,
           price: formData.price ? parseFloat(formData.price) : null,
-          currency: formData.currency || null,
+          currency: formData.currency === '¥' ? 'JPY' : formData.currency === '$' ? 'USD' : formData.currency,
           expiry_date: formData.expiry_date || null,
           purchase_date: formData.purchase_date || null,
           notes: formData.notes || null,
