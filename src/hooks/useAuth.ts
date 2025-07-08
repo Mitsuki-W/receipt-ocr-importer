@@ -161,7 +161,9 @@ export function useAuth() {
             clearTimeout(warningTimeoutRef.current)
           }
         } else if (event === 'TOKEN_REFRESHED') {
-          resetSessionTimer()
+          // トークンリフレッシュ時はタイマーをリセットしない
+          // トークンの自動更新は1時間ごとに発生するため、セッションタイマーをリセットすべきではない
+          console.log('Token refreshed - セッションタイマーはリセットしません')
         }
       }
     )

@@ -4,141 +4,6 @@ import { AUTH_CONFIG, STORAGE_KEYS } from '@/constants/appConstants'
 
 const { MAX_LOGIN_ATTEMPTS, LOCKOUT_DURATION } = AUTH_CONFIG
 
-// ユーザー登録確認関数（エクスポート）
-export async function checkUserRegistered(email: string): Promise<boolean> {
-  try {
-    // Supabaseのauth.usersテーブルを直接クエリ
-    const { data, error } = await supabase.rpc('check_user_exists', {
-      email_param: email
-    })
-    
-    if (error) {
-      console.error('ユーザー存在確認エラー:', error)
-      return false
-    }
-    
-    return data || false
-  } catch (error) {
-    console.error('ユーザー登録確認エラー:', error)
-    return false
-  }
-}
-
-// メールアドレス存在確認関数（エクスポート）
-export async function validateEmailExists(email: string): Promise<boolean> {
-  try {
-    // メールアドレスの基本的な形式チェック
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return false
-    }
-
-    // 一般的な無効ドメインをチェック（拡張版）
-    const invalidDomains = [
-      'example.com',
-      'example.org',
-      'example.net',
-      'test.com',
-      'test.org',
-      'testing.com',
-      'invalid.com',
-      'invalid.org',
-      'fake.com',
-      'fake.org',
-      'dummy.com',
-      'dummy.org',
-      'temp.com',
-      'temporary.com',
-      'throwaway.email',
-      '10minutemail.com',
-      'guerrillamail.com',
-      'mailinator.com',
-      'tempmail.org',
-      'yopmail.com',
-      'sharklasers.com',
-      'grr.la',
-      'guerrillamailblock.com'
-    ]
-    
-    const domain = email.split('@')[1]?.toLowerCase()
-    if (invalidDomains.includes(domain)) {
-      return false
-    }
-
-    // DNS MXレコード確認（簡易版）
-    // 実際のMX確認はサーバーサイドで行う必要があるため、
-    // ここでは主要プロバイダーのホワイトリストを使用
-    const trustedDomains = [
-      // 国際的な主要プロバイダー
-      'gmail.com',
-      'yahoo.com',
-      'hotmail.com',
-      'outlook.com',
-      'live.com',
-      'icloud.com',
-      'me.com',
-      'mac.com',
-      'aol.com',
-      'protonmail.com',
-      'zoho.com',
-      // 日本の主要プロバイダー
-      'yahoo.co.jp',
-      'docomo.ne.jp',
-      'ezweb.ne.jp',
-      'au.com',
-      'softbank.ne.jp',
-      'i.softbank.jp',
-      'nifty.com',
-      'biglobe.ne.jp',
-      'so-net.ne.jp',
-      'ocn.ne.jp',
-      'rakuten.jp',
-      'goo.jp',
-      // 企業・教育機関用ドメイン（一般的なパターン）
-      // これらは後で動的に判定
-    ]
-
-    // 主要プロバイダーの場合は有効とみなす
-    if (trustedDomains.includes(domain)) {
-      return true
-    }
-
-    // 企業・教育機関ドメインの検証
-    const domainParts = domain.split('.')
-    
-    // 最低2つの部分が必要（例: company.com）
-    if (domainParts.length < 2) {
-      return false
-    }
-    
-    // 各部分が有効な文字列かチェック
-    const domainPartRegex = /^[a-z0-9-]+$/
-    if (!domainParts.every(part => part.length > 0 && domainPartRegex.test(part))) {
-      return false
-    }
-    
-    // トップレベルドメイン（TLD）のチェック
-    const tld = domainParts[domainParts.length - 1]
-    const validTlds = [
-      'com', 'org', 'net', 'edu', 'gov', 'mil', 'int',
-      'jp', 'co.jp', 'ac.jp', 'go.jp', 'or.jp', 'ne.jp',
-      'uk', 'de', 'fr', 'ca', 'au', 'in', 'cn', 'kr'
-    ]
-    
-    // .co.jp, .ac.jp のような複合TLDの処理
-    const lastTwoParts = domainParts.slice(-2).join('.')
-    if (validTlds.includes(lastTwoParts) || validTlds.includes(tld)) {
-      return true
-    }
-
-    return false
-  } catch (error) {
-    console.error('メールアドレス検証エラー:', error)
-    // エラーが発生した場合は通す（厳密すぎるチェックを避ける）
-    return true
-  }
-}
-
 export interface AuthFormState {
   email: string
   password: string
@@ -150,6 +15,7 @@ export interface AuthFormState {
   isLocked: boolean
   lockoutEndTime: number | null
   remainingTime: number
+  isRegisteredUser: boolean
 }
 
 export interface AuthFormActions {
@@ -171,6 +37,7 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
   const [isLocked, setIsLocked] = useState(false)
   const [lockoutEndTime, setLockoutEndTime] = useState<number | null>(null)
   const [remainingTime, setRemainingTime] = useState(0)
+  const [isRegisteredUser, setIsRegisteredUser] = useState(false)
 
   // メールアドレス変更時にロック状態をチェック
   useEffect(() => {
@@ -309,14 +176,6 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
         }
         localStorage.setItem('last_signup_attempt', now.toString())
         
-        // メールアドレスの存在確認
-        setMessage('メールアドレスを確認しています...')
-        const isValidEmail = await validateEmailExists(email)
-        if (!isValidEmail) {
-          setError('入力されたメールアドレスは存在しません。正しいメールアドレスを入力してください。')
-          return
-        }
-        
         setMessage('アカウントを作成しています...')
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -348,7 +207,7 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
             setError('このメールアドレスは既に登録されています。ログインしてください。')
             return
           } else {
-            setMessage('確認メールを送信しました。メールをチェックしてください。')
+            setMessage('アカウントが作成されました。ログインできます。')
           }
         }
       } else {
@@ -359,17 +218,8 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
         
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
-            // メールアドレスが存在するかチェック
-            const userExists = await checkUserRegistered(email)
-            if (!userExists) {
-              setError('このメールアドレスはまだ登録されていません。アカウントを作成しますか？')
-              return
-            }
-            // 登録済みメールアドレスの場合はアカウントロック機能を実行
+            // ログイン失敗時はアカウントロック機能を実行
             handleLoginFailure()
-            return
-          } else if (error.message.includes('Email not confirmed')) {
-            setError('メールアドレスが確認されていません。確認メールをチェックしてください。')
             return
           }
           
@@ -385,8 +235,6 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
       
       if (errorMessage.includes('Invalid login credentials')) {
         errorMessage = 'メールアドレスまたはパスワードが正しくありません。'
-      } else if (errorMessage.includes('Email not confirmed')) {
-        errorMessage = 'メールアドレスが確認されていません。確認メールをチェックしてください。'
       } else if (errorMessage.includes('Password should be at least')) {
         errorMessage = 'パスワードは6文字以上で入力してください。'
       } else if (errorMessage.includes('Invalid email')) {
@@ -416,6 +264,7 @@ export function useAuthForm(): AuthFormState & AuthFormActions {
     isLocked,
     lockoutEndTime,
     remainingTime,
+    isRegisteredUser,
     setEmail,
     setPassword,
     setIsSignUp: handleIsSignUpChange,

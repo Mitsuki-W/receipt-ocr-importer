@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase/client'
 import { Item, SortOption } from '@/types/item'
+import { getCurrentTorontoTime } from '@/utils/timezone'
 
 interface UseItemOperationsParams {
   items: Item[]
@@ -26,7 +27,7 @@ export function useItemOperations(params: UseItemOperationsParams) {
         .from('items')
         .update({ 
           is_consumed: !currentStatus,
-          consumed_at: !currentStatus ? new Date().toISOString() : null
+          consumed_at: !currentStatus ? getCurrentTorontoTime() : null
         })
         .eq('id', itemId)
 
@@ -39,7 +40,7 @@ export function useItemOperations(params: UseItemOperationsParams) {
             ? { 
                 ...item, 
                 is_consumed: !currentStatus,
-                consumed_at: !currentStatus ? new Date().toISOString() : null
+                consumed_at: !currentStatus ? getCurrentTorontoTime() : null
               }
             : item
         )

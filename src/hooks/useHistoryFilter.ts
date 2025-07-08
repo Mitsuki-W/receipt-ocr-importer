@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { HistoryItem, HistoryFilterState } from '@/types/history'
+import { CATEGORIES } from '@/constants/itemConstants'
 
 export function useHistoryFilter(items: HistoryItem[]) {
   const [filters, setFilters] = useState<HistoryFilterState>({
@@ -32,25 +33,51 @@ export function useHistoryFilter(items: HistoryItem[]) {
   }
 
   const filteredItems = useMemo(() => {
+    console.log('フィルタリング開始:', {
+      totalItems: items.length,
+      filters: filters,
+      timestamp: new Date().toISOString()
+    })
+
     let filtered = items
 
     // 検索クエリでフィルタリング
     if (filters.searchQuery.trim()) {
+      const beforeSearch = filtered.length
       filtered = filtered.filter(item => 
         item.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
         item.notes?.toLowerCase().includes(filters.searchQuery.toLowerCase())
       )
+      console.log('検索フィルタ適用:', {
+        before: beforeSearch,
+        after: filtered.length,
+        query: filters.searchQuery
+      })
     }
 
     // カテゴリでフィルタリング
     if (filters.categoryFilter !== 'all') {
+      const beforeCategory = filtered.length
       filtered = filtered.filter(item => item.category === filters.categoryFilter)
+      console.log('カテゴリフィルタ適用:', {
+        before: beforeCategory,
+        after: filtered.length,
+        category: filters.categoryFilter
+      })
     }
 
     // 期間フィルタリング
     if (filters.periodFilter !== 'all') {
+      const beforePeriod = filtered.length
       const now = new Date()
       let startDate: Date | null = null
+
+      console.log('期間フィルタ計算開始:', {
+        periodFilter: filters.periodFilter,
+        now: now.toISOString(),
+        nowDay: now.getDay(), // 0=日曜日, 1=月曜日, ...
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      })
 
       switch (filters.periodFilter) {
         case 'today':
@@ -58,9 +85,20 @@ export function useHistoryFilter(items: HistoryItem[]) {
           break
         case 'this-week':
           const weekStart = new Date(now)
-          weekStart.setDate(now.getDate() - now.getDay())
+          // 月曜日を週の開始とする（日曜日=0, 月曜日=1）
+          const dayOfWeek = now.getDay()
+          const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+          weekStart.setDate(now.getDate() - daysToSubtract)
           weekStart.setHours(0, 0, 0, 0)
           startDate = weekStart
+          console.log('今週フィルタ（カレンダー週：月曜日〜日曜日）:', {
+            現在日時: now.toISOString(),
+            現在曜日: dayOfWeek,
+            引く日数: daysToSubtract,
+            週開始日: weekStart.toISOString(),
+            週開始日_ローカル: weekStart.toString(),
+            対象期間: `${weekStart.toISOString().split('T')[0]} 〜 ${new Date(weekStart.getTime() + 6*24*60*60*1000).toISOString().split('T')[0]}`
+          })
           break
         case 'this-month':
           startDate = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -68,9 +106,20 @@ export function useHistoryFilter(items: HistoryItem[]) {
         case 'last-month':
           const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
           const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+          console.log('先月フィルタ:', {
+            lastMonth: lastMonth.toISOString(),
+            lastMonthEnd: lastMonthEnd.toISOString()
+          })
           filtered = filtered.filter(item => {
             const consumedDate = new Date(item.consumed_at)
-            return consumedDate >= lastMonth && consumedDate <= lastMonthEnd
+            const result = consumedDate >= lastMonth && consumedDate <= lastMonthEnd
+            console.log('先月フィルタ判定:', {
+              itemName: item.name,
+              consumed_at: item.consumed_at,
+              consumedDate: consumedDate.toISOString(),
+              result: result
+            })
+            return result
           })
           break
         case 'last-3-months':
@@ -82,15 +131,34 @@ export function useHistoryFilter(items: HistoryItem[]) {
       }
 
       if (startDate && filters.periodFilter !== 'last-month') {
+        console.log('期間フィルタ適用:', {
+          startDate: startDate.toISOString(),
+          periodFilter: filters.periodFilter
+        })
         filtered = filtered.filter(item => {
           const consumedDate = new Date(item.consumed_at)
-          return consumedDate >= startDate!
+          const result = consumedDate >= startDate!
+          console.log('期間フィルタ判定:', {
+            itemName: item.name,
+            consumed_at: item.consumed_at,
+            consumedDate: consumedDate.toISOString(),
+            startDate: startDate!.toISOString(),
+            result: result
+          })
+          return result
         })
       }
+
+      console.log('期間フィルタ適用完了:', {
+        before: beforePeriod,
+        after: filtered.length,
+        periodFilter: filters.periodFilter
+      })
     }
 
     // カスタム日付期間フィルタリング
     if (filters.dateFilterFrom || filters.dateFilterTo) {
+      const beforeCustom = filtered.length
       filtered = filtered.filter(item => {
         const consumedDate = new Date(item.consumed_at)
         const fromDate = filters.dateFilterFrom ? new Date(filters.dateFilterFrom) : null
@@ -101,7 +169,19 @@ export function useHistoryFilter(items: HistoryItem[]) {
         
         return true
       })
+      console.log('カスタム日付フィルタ適用:', {
+        before: beforeCustom,
+        after: filtered.length,
+        dateFilterFrom: filters.dateFilterFrom,
+        dateFilterTo: filters.dateFilterTo
+      })
     }
+
+    console.log('フィルタリング完了:', {
+      originalCount: items.length,
+      filteredCount: filtered.length,
+      filters: filters
+    })
 
     return filtered
   }, [items, filters])
@@ -148,27 +228,9 @@ export function useHistoryFilter(items: HistoryItem[]) {
   }, [filteredItems, filters.sortBy])
 
   const availableCategories = useMemo(() => {
-    const uniqueCategories = [...new Set(items.map(item => item.category))]
-    
-    // 指定された順序（食品管理画面と同じ）
-    const categoryOrder = [
-      '野菜',
-      '肉類', 
-      '乳製品',
-      '果物',
-      'パン・穀物',
-      '調味料',
-      '飲料',
-      'お菓子',
-      'その他'
-    ]
-    
-    // 指定順序に従ってソート、存在しないカテゴリは末尾に追加
-    const sortedCategories = categoryOrder.filter(cat => uniqueCategories.includes(cat))
-    const remainingCategories = uniqueCategories.filter(cat => !categoryOrder.includes(cat)).sort()
-    
-    return [...sortedCategories, ...remainingCategories]
-  }, [items])
+    // 全カテゴリを表示（データに存在しないカテゴリも含む）
+    return [...CATEGORIES]
+  }, [])
 
   return {
     filters,

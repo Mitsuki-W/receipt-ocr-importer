@@ -63,7 +63,7 @@ export default function OCRResults({
                       <p className="font-medium text-slate-800 truncate">{item.name}</p>
                       <p className="text-sm text-slate-600">
                         {item.category} 
-                        {item.price && ` • ${item.currency || '¥'}${item.price.toLocaleString()}`}
+                        {item.price && ` • ${item.currency || '$'}${item.price.toLocaleString('en-CA')}`}
                         {item.quantity && item.quantity > 1 && ` • 数量: ${item.quantity}`}
                       </p>
                     </div>

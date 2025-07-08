@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/hooks/useAuth'
 import { CATEGORIES, UNITS } from '@/constants/itemConstants'
+import { getTodayInToronto } from '@/utils/timezone'
 
 interface AddItemFormProps {
   onSuccess: () => void
@@ -27,9 +28,9 @@ export default function AddItemForm({ onSuccess, onCancel }: AddItemFormProps) {
     quantity: '1',
     unit: '個',
     price: '',
-    currency: '¥',
+    currency: '$',
     expiry_date: '',
-    purchase_date: new Date().toISOString().split('T')[0], // 今日の日付
+    purchase_date: getTodayInToronto(), // カナダ東部時間での今日の日付
     notes: ''
   })
 

@@ -27,6 +27,11 @@ export default function HistoryPage() {
 
   const fetchHistoryItems = useCallback(async () => {
     try {
+      console.log('履歴データ取得開始:', {
+        user_id: user?.id,
+        timestamp: new Date().toISOString()
+      })
+
       const { data, error } = await supabase
         .from('items')
         .select('*')
@@ -36,6 +41,17 @@ export default function HistoryPage() {
         .order('consumed_at', { ascending: false })
 
       if (error) throw error
+      
+      console.log('データベースから取得したアイテム数:', data?.length || 0)
+      console.log('取得したアイテム詳細:', data?.map(item => ({
+        id: item.id,
+        name: item.name,
+        is_consumed: item.is_consumed,
+        consumed_at: item.consumed_at,
+        consumed_at_type: typeof item.consumed_at,
+        consumed_at_date: item.consumed_at ? new Date(item.consumed_at).toISOString() : null
+      })))
+      
       setItems(data || [])
     } catch (error) {
       console.error('履歴取得エラー:', error)

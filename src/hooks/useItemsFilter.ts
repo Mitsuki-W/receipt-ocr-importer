@@ -42,17 +42,9 @@ export function useItemsFilter(items: Item[]) {
   }, [filteredItems, filters.sortBy, frozenOrder])
 
   const availableCategories = useMemo(() => {
-    const uniqueCategories = [...new Set(items.map(item => item.category))]
-    
-    // itemConstants.tsで定義された順序を使用
-    const categoryOrder = [...CATEGORIES]
-    
-    // 指定順序に従ってソート、存在しないカテゴリは末尾に追加
-    const sortedCategories = categoryOrder.filter(cat => uniqueCategories.includes(cat))
-    const remainingCategories = uniqueCategories.filter(cat => !categoryOrder.includes(cat as typeof categoryOrder[number])).sort()
-    
-    return [...sortedCategories, ...remainingCategories]
-  }, [items])
+    // 全カテゴリを表示（データに存在しないカテゴリも含む）
+    return [...CATEGORIES]
+  }, [])
 
   return {
     filters,
