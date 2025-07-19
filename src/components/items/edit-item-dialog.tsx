@@ -245,13 +245,11 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
 
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-2">
             <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
+              type="submit"
               disabled={loading}
               className="w-full sm:w-auto"
             >
-              削除
+              {loading ? '更新中...' : '更新'}
             </Button>
             <Button
               type="button"
@@ -262,12 +260,15 @@ export default function EditItemDialog({ item, open, onOpenChange, onSuccess }: 
             >
               キャンセル
             </Button>
+            <div className="hidden sm:block sm:flex-1"></div>
             <Button
-              type="submit"
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
               disabled={loading}
               className="w-full sm:w-auto"
             >
-              {loading ? '更新中...' : '更新'}
+              削除
             </Button>
           </DialogFooter>
         </form>
